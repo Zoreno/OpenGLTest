@@ -1,0 +1,107 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{e0048022-9e98-4573-8469-0325d9cd6a7e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\FileLoading">
+      <UniqueIdentifier>{1f751e78-1e5f-4b19-ac92-9f120ed73ca4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\FileLoading\TextureFormats">
+      <UniqueIdentifier>{7af86332-d3c5-463f-b4f7-f40e6710be6f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\FileLoading">
+      <UniqueIdentifier>{47edd646-5583-4311-8bce-42e64fa12ec4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\FileLoading\TextureFormats">
+      <UniqueIdentifier>{1433b83d-078f-45dc-badb-ebe692414071}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\FileLoading\ObjectFormats">
+      <UniqueIdentifier>{ab9cc391-8f8c-422e-9a1d-ca01ce9fc8e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\FileLoading\ObjectFormats">
+      <UniqueIdentifier>{17322158-8e15-49e9-b523-9db15821044a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Window.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderProgram.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TGA.cpp">
+      <Filter>Source Files\FileLoading\TextureFormats</Filter>
+    </ClCompile>
+    <ClCompile Include="loadobj.cpp">
+      <Filter>Source Files\FileLoading\ObjectFormats</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture2D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BMP.cpp">
+      <Filter>Source Files\FileLoading\TextureFormats</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="testfrag.shader">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="testvert.shader">
+      <Filter>Shaders</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Window.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderProgram.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PixelInfo.h">
+      <Filter>Header Files\FileLoading\TextureFormats</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureFile.h">
+      <Filter>Header Files\FileLoading\TextureFormats</Filter>
+    </ClInclude>
+    <ClInclude Include="TGA.h">
+      <Filter>Header Files\FileLoading\TextureFormats</Filter>
+    </ClInclude>
+    <ClInclude Include="loadobj.h">
+      <Filter>Header Files\FileLoading\ObjectFormats</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture2D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BMP.h">
+      <Filter>Header Files\FileLoading\TextureFormats</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
