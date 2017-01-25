@@ -44,6 +44,9 @@ Window::Window(const GLuint width, const GLuint height, const std::string& title
 
 	glViewport(0, 0, width, height);
 
+	// Disable vsync
+	glfwSwapInterval(0);
+
 	// Ensure we can capture the escape key being pressed below
 	glfwSetInputMode(windowHandle, GLFW_STICKY_KEYS, GL_TRUE);
 
