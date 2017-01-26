@@ -55,8 +55,8 @@ void main()
 
 	vec4 objColor = texture(texUnit, texCoords);
 
-	//frag_color = vec4(result, 1.0f);
-	frag_color = vec4(result, 1.0f)*objColor;
+	frag_color = vec4(result, 1.0f);
+	//frag_color = vec4(result, 1.0f)*objColor;
 	//frag_color = objColor;
 
 	// Detta ger en cool färgning baserad på normalen för ytan.

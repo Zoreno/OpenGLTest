@@ -22,6 +22,34 @@ void GLFWError(int errorCode, const char* message)
 	std::cerr << "Recieved error " << errorCode << ":" << message << std::endl;
 }
 
+bool recompileShaders(ShaderProgram& currentShader)
+{
+	ShaderProgram shaderProgram{ "testvert.shader", "testfrag.shader" };
+	try
+	{
+		shaderProgram.compile();
+
+		shaderProgram.bindAttribLocation(0, "vertex_position");
+		shaderProgram.bindAttribLocation(1, "vertex_normal");
+		shaderProgram.bindAttribLocation(2, "vertex_texture_coordinates");
+
+		shaderProgram.link();
+
+		shaderProgram.use();
+	}
+	catch (const ShaderProgramException& ex)
+	{
+		std::cerr << "Error recompiling shader. No action taken." << std::endl << ex.what() << std::endl;
+		return false;
+	}
+
+	std::cout << "Shader recompilation successful" << std::endl;
+
+	currentShader = std::move(shaderProgram);
+
+	return true;
+}
+
 int main()
 {
 	try
@@ -68,7 +96,7 @@ int main()
 		glEnableVertexAttribArray(1);
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bunnyIndexBufferObjID);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, m->numIndices*sizeof(GLuint), m->indexArray, GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, m->numIndices * sizeof(GLuint), m->indexArray, GL_STATIC_DRAW);
 
 		if (m->texCoordArray != nullptr)
 		{
@@ -77,7 +105,7 @@ int main()
 			glBufferData(GL_ARRAY_BUFFER, m->numVertices * 2 * sizeof(GLfloat), m->texCoordArray, GL_STATIC_DRAW);
 			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
 			glEnableVertexAttribArray(2);
-		}
+	}
 
 		//============================================================================
 		// Textures
@@ -213,6 +241,11 @@ int main()
 						else  if (ev.key.action == GLFW_RELEASE)
 							rightKeyPressed = false;
 					}
+					if (ev.key.key == GLFW_KEY_F5)
+					{
+						if (ev.key.action == GLFW_PRESS)
+							recompileShaders(shaderProgram);
+					}
 					break;
 				case MOUSE_EVENT:
 				{
@@ -290,7 +323,7 @@ int main()
 		DisposeModel(m);
 
 		glfwTerminate();
-	}
+}
 	catch (const std::exception& ex)
 	{
 		std::cerr << "[FATAL] Caught exception at main level:" << std::endl << ex.what() << std::endl;
