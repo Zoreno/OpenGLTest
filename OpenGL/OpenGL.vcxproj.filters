@@ -34,6 +34,12 @@
     <Filter Include="Source Files\FileLoading\ObjectFormats">
       <UniqueIdentifier>{17322158-8e15-49e9-b523-9db15821044a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Light">
+      <UniqueIdentifier>{4a3c0c81-3896-4b5f-8b9a-4bc3a5941cf2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Light">
+      <UniqueIdentifier>{7b9b37d7-f36a-48dd-82cb-eed46a6f7eac}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -62,6 +68,9 @@
     </ClCompile>
     <ClCompile Include="BMP.cpp">
       <Filter>Source Files\FileLoading\TextureFormats</Filter>
+    </ClCompile>
+    <ClCompile Include="PointLight.cpp">
+      <Filter>Source Files\Light</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -102,6 +111,9 @@
     </ClInclude>
     <ClInclude Include="BMP.h">
       <Filter>Header Files\FileLoading\TextureFormats</Filter>
+    </ClInclude>
+    <ClInclude Include="PointLight.h">
+      <Filter>Header Files\Light</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

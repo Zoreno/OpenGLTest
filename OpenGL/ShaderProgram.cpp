@@ -26,7 +26,7 @@ ShaderProgram::~ShaderProgram()
 
 void ShaderProgram::compile()
 {
-	if(glIsShader(vertexShaderHandle))
+	if (glIsShader(vertexShaderHandle))
 	{
 		glDeleteShader(vertexShaderHandle);
 	}
@@ -51,7 +51,7 @@ void ShaderProgram::compile()
 	{
 		glGetShaderInfoLog(vertexShaderHandle, 512, NULL, infoLog);
 		std::string errorMessage;
-		errorMessage =  "Error compiling vertex shader (" + vertexShaderPath + ")\n" + infoLog;
+		errorMessage = "Error compiling vertex shader (" + vertexShaderPath + ")\n" + infoLog;
 		throw ShaderProgramException(errorMessage);
 	}
 
@@ -72,7 +72,7 @@ void ShaderProgram::compile()
 	}
 
 	// If the prorgram is already existing, delete it before creating a new one.
-	if(glIsProgram(shaderProgramHandle))
+	if (glIsProgram(shaderProgramHandle))
 	{
 		glDeleteProgram(shaderProgramHandle);
 	}
@@ -117,4 +117,34 @@ void ShaderProgram::disable() const
 GLuint ShaderProgram::getShaderProgramHandle() const
 {
 	return shaderProgramHandle;
+}
+
+void ShaderProgram::uploadUniform(const std::string& name, float value)
+{
+	glUniform1f(glGetUniformLocation(shaderProgramHandle, name.c_str()), value);
+}
+
+void ShaderProgram::uploadUniform(const std::string& name, int value)
+{
+	glUniform1i(glGetUniformLocation(shaderProgramHandle, name.c_str()), value);
+}
+
+void ShaderProgram::uploadUniform(const std::string& name, glm::vec2 value)
+{
+	glUniform2f(glGetUniformLocation(shaderProgramHandle, name.c_str()), value.x, value.y);
+}
+
+void ShaderProgram::uploadUniform(const std::string& name, glm::vec3 value)
+{
+	glUniform3f(glGetUniformLocation(shaderProgramHandle, name.c_str()), value.x, value.y, value.z);
+}
+
+void ShaderProgram::uploadUniform(const std::string& name, glm::vec4 value)
+{
+	glUniform4f(glGetUniformLocation(shaderProgramHandle, name.c_str()), value.x, value.y, value.z, value.w);
+}
+
+void ShaderProgram::uploadUniform(const std::string& name, glm::mat4 value)
+{
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgramHandle, name.c_str()), 1, GL_FALSE, glm::value_ptr(value));
 }

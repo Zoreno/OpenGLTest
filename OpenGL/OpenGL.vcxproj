@@ -118,6 +118,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="loadobj.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="PointLight.cpp" />
     <ClCompile Include="ShaderProgram.cpp" />
     <ClCompile Include="BMP.cpp" />
     <ClCompile Include="Texture2D.cpp" />
@@ -134,6 +135,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="loadobj.h" />
     <ClInclude Include="PixelInfo.h" />
+    <ClInclude Include="PointLight.h" />
     <ClInclude Include="ShaderProgram.h" />
     <ClInclude Include="Texture2D.h" />
     <ClInclude Include="TextureFile.h" />

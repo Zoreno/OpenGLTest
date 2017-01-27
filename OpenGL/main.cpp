@@ -288,10 +288,11 @@ int main()
 
 			mat4 trans = projection*view*model;
 
-			glUniformMatrix4fv(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "transform"), 1, GL_FALSE, value_ptr(trans));
-			glUniformMatrix4fv(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "model"), 1, GL_FALSE, value_ptr(model));
-			glUniform1f(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "time"), time);
-			glUniform3f(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "view_pos"), camera.getPosition().x, camera.getPosition().y, camera.getPosition().z);
+			shaderProgram.uploadUniform("transform", trans);
+			shaderProgram.uploadUniform("transform", trans);
+			shaderProgram.uploadUniform("time", time);
+
+			shaderProgram.uploadUniform("view_pos", camera.getPosition());
 
 			// Light uniforms
 

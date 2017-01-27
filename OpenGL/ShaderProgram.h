@@ -6,6 +6,9 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 
 class ShaderProgramException : public std::runtime_error
 {
@@ -29,6 +32,15 @@ public:
 	void disable() const;
 
 	GLuint getShaderProgramHandle() const;
+
+	// Add more as needed
+
+	void uploadUniform(const std::string& name, float value);
+	void uploadUniform(const std::string& name, int value);
+	void uploadUniform(const std::string& name, glm::vec2 value);
+	void uploadUniform(const std::string& name, glm::vec3 value);
+	void uploadUniform(const std::string& name, glm::vec4 value);
+	void uploadUniform(const std::string& name, glm::mat4 value);
 private:
 
 	std::string vertexShaderPath;
