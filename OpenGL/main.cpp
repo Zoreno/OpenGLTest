@@ -50,6 +50,267 @@ bool recompileShaders(ShaderProgram& currentShader)
 	return true;
 }
 
+int test_main()
+{
+	GLfloat vertices[] = {
+		-1.0f,-1.0f,-1.0f, // triangle 1 : begin
+		-1.0f,-1.0f, 1.0f,
+		-1.0f, 1.0f, 1.0f, // triangle 1 : end
+		1.0f, 1.0f,-1.0f, // triangle 2 : begin
+		-1.0f,-1.0f,-1.0f,
+		-1.0f, 1.0f,-1.0f, // triangle 2 : end
+		1.0f,-1.0f, 1.0f,
+		-1.0f,-1.0f,-1.0f,
+		1.0f,-1.0f,-1.0f,
+		1.0f, 1.0f,-1.0f,
+		1.0f,-1.0f,-1.0f,
+		-1.0f,-1.0f,-1.0f,
+		-1.0f,-1.0f,-1.0f,
+		-1.0f, 1.0f, 1.0f,
+		-1.0f, 1.0f,-1.0f,
+		1.0f,-1.0f, 1.0f,
+		-1.0f,-1.0f, 1.0f,
+		-1.0f,-1.0f,-1.0f,
+		-1.0f, 1.0f, 1.0f,
+		-1.0f,-1.0f, 1.0f,
+		1.0f,-1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f,
+		1.0f,-1.0f,-1.0f,
+		1.0f, 1.0f,-1.0f,
+		1.0f,-1.0f,-1.0f,
+		1.0f, 1.0f, 1.0f,
+		1.0f,-1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f,-1.0f,
+		-1.0f, 1.0f,-1.0f,
+		1.0f, 1.0f, 1.0f,
+		-1.0f, 1.0f,-1.0f,
+		-1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f,
+		-1.0f, 1.0f, 1.0f,
+		1.0f,-1.0f, 1.0f
+	};
+
+	GLfloat colors[] = {
+		1.f, 0.f, 0.f,
+		0.f, 1.f, 0.f,
+		0.f, 0.f, 1.f,
+		1.f, 0.f, 0.f,
+		0.f, 1.f, 0.f,
+		0.f, 0.f, 1.f,
+		1.f, 0.f, 0.f,
+		0.f, 1.f, 0.f,
+		0.f, 0.f, 1.f,
+		1.f, 0.f, 0.f,
+		0.f, 1.f, 0.f,
+		0.f, 0.f, 1.f,
+		1.f, 0.f, 0.f,
+		0.f, 1.f, 0.f,
+		0.f, 0.f, 1.f,
+		1.f, 0.f, 0.f,
+		0.f, 1.f, 0.f,
+		0.f, 0.f, 1.f,
+		1.f, 0.f, 0.f,
+		0.f, 1.f, 0.f,
+		0.f, 0.f, 1.f,
+		1.f, 0.f, 0.f,
+		0.f, 1.f, 0.f,
+		0.f, 0.f, 1.f,
+		1.f, 0.f, 0.f,
+		0.f, 1.f, 0.f,
+		0.f, 0.f, 1.f,
+		1.f, 0.f, 0.f,
+		0.f, 1.f, 0.f,
+		0.f, 0.f, 1.f,
+		1.f, 0.f, 0.f,
+		0.f, 1.f, 0.f,
+		0.f, 0.f, 1.f,
+		1.f, 0.f, 0.f,
+		0.f, 1.f, 0.f,
+		0.f, 0.f, 1.f,
+	};
+
+	Window window{ 1024, 728, "Labb 1" };
+	glClearColor(0.f, 0.f, 0.f, 1.0f);
+
+	GLuint VAO;
+	glGenVertexArrays(1, &VAO);
+	glBindVertexArray(VAO);
+
+	GLuint vertexVBO;
+
+	glGenBuffers(1, &vertexVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(0);
+
+	GLuint colorVBO;
+
+	glGenBuffers(1, &colorVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, colorVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(1);
+
+	ShaderProgram program{ "labb1-1.vert", "labb1-1.frag" };
+	try
+	{
+		program.compile();
+		program.bindAttribLocation(0, "in_Position");
+		program.bindAttribLocation(1, "in_Color");
+		program.link();
+
+		program.use();
+
+	}
+	catch (const ShaderProgramException& ex)
+	{
+		std::cerr << ex.what() << std::endl;
+		return -1;
+	}
+
+	GLfloat time = (GLfloat)glfwGetTime();
+	GLfloat timeElapsed = 0.f;
+	GLuint frames = 0;
+
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
+
+	while (!window.shouldClose())
+	{
+		GLfloat oldTime = time;
+		time = (GLfloat)glfwGetTime();
+		GLfloat timeDelta = (time - oldTime);
+		timeElapsed += timeDelta;
+		++frames;
+
+		if (timeElapsed > 1.f)
+		{
+			timeElapsed -= 1.f;
+			std::string newTitle = std::to_string(frames) + std::string{ " FPS" };
+			window.setTitle(newTitle);
+			frames = 0;
+		}
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		WindowEvent ev;
+		while (window.pollEvent(ev));
+
+		glm::mat4 mat{ 1.f };
+
+		mat = glm::scale(mat, glm::vec3(0.5f, 0.5f, 0.5f));
+		mat = glm::rotate(mat, glm::radians(time * 50.f), glm::normalize(glm::vec3(0.f, 1.f, 1.f)));
+
+		glUniformMatrix4fv(glGetUniformLocation(program.getShaderProgramHandle(), "myMatrix"), 1, GL_FALSE, glm::value_ptr(mat));
+
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		window.display();
+	}
+}
+
+int labb1_main()
+{
+	GLfloat vertices[] = {
+		-0.5f, -0.5f, 0,
+		-0.5f, 0.5f, 0,
+		0.5f, -0.5f, 0
+	};
+
+	GLfloat colors[] = {
+		1.f, 0.f, 0.f,
+		0.f, 1.f, 0.f,
+		0.f, 0.f, 1.f
+	};
+
+	GLfloat myMatrix[] = {
+		1.f,0.f,0.f, 0.5f,
+		0.f, 1.f, 0.f, 0.f,
+		0.f, 0.f, 1.f, 0.f,
+		0.f, 0.f, 0.f, 1.f
+	};
+
+	Window window{ 1024, 728, "Labb 1" };
+	glClearColor(0.f, 0.f, 0.f, 1.0f);
+
+	GLuint VAO;
+	glGenVertexArrays(1, &VAO);
+	glBindVertexArray(VAO);
+	
+	GLuint vertexVBO;
+	
+	glGenBuffers(1, &vertexVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexVBO);
+	glBufferData(GL_ARRAY_BUFFER, 9 * sizeof(GLfloat), vertices, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(0);
+
+	GLuint colorVBO;
+
+	glGenBuffers(1, &colorVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, colorVBO);
+	glBufferData(GL_ARRAY_BUFFER, 9 * sizeof(GLfloat), colors, GL_STATIC_DRAW);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(1);
+
+	ShaderProgram program{"labb1-1.vert", "labb1-1.frag"};
+	try
+	{
+		program.compile();
+		program.bindAttribLocation(0, "in_Position");
+		program.bindAttribLocation(1, "in_Color");
+		program.link();
+
+		program.use();
+
+	}
+	catch (const ShaderProgramException& ex)
+	{
+		std::cerr << ex.what() << std::endl;
+		return -1;
+	}
+
+	GLfloat time = (GLfloat)glfwGetTime();
+	GLfloat timeElapsed = 0.f;
+	GLuint frames = 0;
+
+	while(!window.shouldClose())
+	{
+		GLfloat oldTime = time;
+		time = (GLfloat)glfwGetTime();
+		GLfloat timeDelta = (time - oldTime);
+		timeElapsed += timeDelta;
+		++frames;
+
+		if (timeElapsed > 1.f)
+		{
+			timeElapsed -= 1.f;
+			std::string newTitle = std::to_string(frames) + std::string{ " FPS" };
+			window.setTitle(newTitle);
+			frames = 0;
+		}
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		WindowEvent ev;
+		while (window.pollEvent(ev));
+
+		glm::mat4 mat{ 1.f };
+
+		mat = glm::rotate(mat, glm::radians(time * 50.f), glm::vec3(0.f, 0.f, 1.f));
+
+		glUniformMatrix4fv(glGetUniformLocation(program.getShaderProgramHandle(), "myMatrix"), 1, GL_FALSE, glm::value_ptr(mat));
+
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+
+		window.display();
+	}
+}
+
 int main()
 {
 	try
@@ -289,7 +550,7 @@ int main()
 			mat4 trans = projection*view*model;
 
 			shaderProgram.uploadUniform("transform", trans);
-			shaderProgram.uploadUniform("transform", trans);
+			shaderProgram.uploadUniform("model", model);
 			shaderProgram.uploadUniform("time", time);
 
 			shaderProgram.uploadUniform("view_pos", camera.getPosition());
@@ -335,4 +596,5 @@ int main()
 	}
 
 	return 0;
+
 }

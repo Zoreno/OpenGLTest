@@ -127,6 +127,8 @@
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="labb1-1.frag" />
+    <None Include="labb1-1.vert" />
     <None Include="testfrag.shader" />
     <None Include="testvert.shader" />
   </ItemGroup>
