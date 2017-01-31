@@ -50,7 +50,7 @@ bool recompileShaders(ShaderProgram& currentShader)
 	return true;
 }
 
-int test_main()
+int labb1_cube()
 {
 	GLfloat vertices[] = {
 		-1.0f,-1.0f,-1.0f, // triangle 1 : begin
@@ -212,7 +212,7 @@ int test_main()
 	}
 }
 
-int labb1_main()
+int labb1_triangle()
 {
 	GLfloat vertices[] = {
 		-0.5f, -0.5f, 0,
@@ -231,6 +231,12 @@ int labb1_main()
 		0.f, 1.f, 0.f, 0.f,
 		0.f, 0.f, 1.f, 0.f,
 		0.f, 0.f, 0.f, 1.f
+	};
+
+	GLfloat texCoords[] = {
+		0.f, 0.f,
+		0.f, 1.f,
+		1.f, 0.f
 	};
 
 	Window window{ 1024, 728, "Labb 1" };
@@ -256,12 +262,24 @@ int labb1_main()
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(1);
 
+	GLuint textureVBO;
+
+	glGenBuffers(1, &textureVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, textureVBO);
+	glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(GLfloat), texCoords, GL_STATIC_DRAW);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(2);
+
+	glActiveTexture(GL_TEXTURE0);
+	Texture2D tex{ "maskros512.tga" };
+
 	ShaderProgram program{"labb1-1.vert", "labb1-1.frag"};
 	try
 	{
 		program.compile();
 		program.bindAttribLocation(0, "in_Position");
 		program.bindAttribLocation(1, "in_Color");
+		program.bindAttribLocation(2, "in_TexCoords");
 		program.link();
 
 		program.use();
@@ -304,6 +322,8 @@ int labb1_main()
 
 		glUniformMatrix4fv(glGetUniformLocation(program.getShaderProgramHandle(), "myMatrix"), 1, GL_FALSE, glm::value_ptr(mat));
 
+		program.uploadUniform("texUnit", 0);
+
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
@@ -311,7 +331,7 @@ int labb1_main()
 	}
 }
 
-int main()
+int labb1_bunny()
 {
 	try
 	{
@@ -597,4 +617,9 @@ int main()
 
 	return 0;
 
+}
+
+int main()
+{
+	return labb1_triangle();
 }
