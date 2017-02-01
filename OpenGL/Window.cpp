@@ -15,16 +15,45 @@ void mouse_callback_func(GLFWwindow* windowHandle, double xpos, double ypos)
 	static_cast<Window*>(glfwGetWindowUserPointer(windowHandle))->mouse_callback(xpos, ypos);
 }
 
-Window::Window(const GLuint width, const GLuint height, const std::string& title)
+WindowSettings getDefaultWindowSettings()
+{
+	WindowSettings settings;
+
+	settings.resizable = GLFW_TRUE;
+	settings.visible = GLFW_TRUE;
+	settings.decorated = GLFW_TRUE;
+	settings.focused = GLFW_TRUE;
+	settings.auto_iconify = GLFW_TRUE;
+	settings.floating = GLFW_FALSE;
+	settings.maximized = GLFW_FALSE;
+
+	settings.samples = 4;
+	settings.vSync = GLFW_TRUE;
+
+	settings.version_major = 3;
+	settings.version_minor = 3;
+
+	return settings;
+}
+
+Window::Window(const GLuint width, const GLuint height, const std::string& title, WindowSettings settings)
 {
 	if (!glfwInit())
 	{
 		throw WindowRuntimeException("Failed to initialize GLFW");
 	}
 
-	glfwWindowHint(GLFW_SAMPLES, 4); // 4x antialiasing
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); // We want OpenGL 3.3
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_RESIZABLE, settings.resizable);
+	glfwWindowHint(GLFW_VISIBLE, settings.visible);
+	glfwWindowHint(GLFW_DECORATED, settings.decorated);
+	glfwWindowHint(GLFW_FOCUSED, settings.focused);
+	glfwWindowHint(GLFW_AUTO_ICONIFY, settings.auto_iconify);
+	glfwWindowHint(GLFW_FLOATING, settings.floating);
+	glfwWindowHint(GLFW_MAXIMIZED, settings.maximized);
+
+	glfwWindowHint(GLFW_SAMPLES, settings.samples); // 4x antialiasing
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, settings.version_major); // We want OpenGL 3.3
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, settings.version_minor);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); //We don't want the old OpenGL 
 
@@ -44,8 +73,14 @@ Window::Window(const GLuint width, const GLuint height, const std::string& title
 
 	glViewport(0, 0, width, height);
 
-	// Disable vsync
-	glfwSwapInterval(0);
+	if(settings.vSync)
+	{
+		enableVSync();
+	}
+	else
+	{
+		disableVSync();
+	}
 
 	// Ensure we can capture the escape key being pressed below
 	glfwSetInputMode(windowHandle, GLFW_STICKY_KEYS, GL_TRUE);
@@ -79,11 +114,13 @@ GLFWwindow* Window::getHandle() const noexcept
 
 void Window::setDimensions(const GLuint newWidth, const GLuint newHeight) const
 {
+	setContextCurrent();
 	glViewport(0, 0, newWidth, newHeight);
 }
 
 void Window::setDimensions(const glm::vec2& newDimensions) const
 {
+	setContextCurrent();
 	glViewport(0, 0, newDimensions.x, newDimensions.y);
 }
 
@@ -104,6 +141,7 @@ void Window::requestClose() const
 
 void Window::framebuffer_size_callback(int width, int height)
 {
+	setContextCurrent();
 	glViewport(0, 0, width, height);
 }
 
@@ -149,4 +187,21 @@ bool Window::pollEvent(WindowEvent& ev)
 	ev = eventQueue.front();
 	eventQueue.pop();
 	return true;
+}
+
+void Window::enableVSync()
+{
+	glfwSwapInterval(1);
+	VSyncActive = true;
+}
+
+void Window::disableVSync()
+{
+	glfwSwapInterval(0);
+	VSyncActive = false;
+}
+
+bool Window::getVSyncStatus() const
+{
+	return VSyncActive;
 }

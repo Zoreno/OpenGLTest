@@ -239,7 +239,12 @@ int labb1_triangle()
 		1.f, 0.f
 	};
 
-	Window window{ 1024, 728, "Labb 1" };
+	WindowSettings settings = getDefaultWindowSettings();
+
+	settings.maximized = GLFW_TRUE;
+	settings.vSync = GLFW_FALSE;
+
+	Window window{ 1024, 728, "Labb 1" , settings};
 	glClearColor(0.f, 0.f, 0.f, 1.0f);
 
 	GLuint VAO;
