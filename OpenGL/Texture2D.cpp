@@ -5,8 +5,13 @@
 
 #include <string>
 
+Texture2D::Texture2D()
+	:file{nullptr}, textureID{0} {}
+
 Texture2D::Texture2D(const char* filePath)
 {
+	// TODO: Better way of detecting file format.
+
 	size_t filePathLength = strlen(filePath);
 
 	if(strcmp(filePath + filePathLength - 4, ".tga") == 0) // File is TGA
@@ -48,9 +53,16 @@ Texture2D::Texture2D(const char* filePath)
 
 Texture2D::~Texture2D()
 {
-	delete file;
+	if(file)
+		delete file;
 
-	glDeleteTextures(1, &textureID);
+	if(textureID != 0)
+		glDeleteTextures(1, &textureID);
+}
+
+Texture2D::Texture2D(Texture2D&& other) noexcept
+{
+	swap(*this, other);
 }
 
 uint32_t Texture2D::getWidth() const
@@ -71,4 +83,17 @@ GLuint Texture2D::getHandle() const
 void Texture2D::bind() const
 {
 	glBindTexture(GL_TEXTURE_2D, textureID);
+}
+
+void Texture2D::bind(GLuint texUnit) const
+{
+	// TODO: Throw exception when texUnit is larger than supported number of units
+	glActiveTexture(GL_TEXTURE0 + texUnit);
+	glBindTexture(GL_TEXTURE_2D, textureID);
+}
+
+void swap(Texture2D& first, Texture2D& second) noexcept
+{
+	std::swap(first.textureID, second.textureID);
+	std::swap(first.file, second.file);
 }

@@ -244,15 +244,15 @@ int labb1_triangle()
 	settings.maximized = GLFW_TRUE;
 	settings.vSync = GLFW_FALSE;
 
-	Window window{ 1024, 728, "Labb 1" , settings};
+	Window window{ 1024, 728, "Labb 1" , settings };
 	glClearColor(0.f, 0.f, 0.f, 1.0f);
 
 	GLuint VAO;
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
-	
+
 	GLuint vertexVBO;
-	
+
 	glGenBuffers(1, &vertexVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexVBO);
 	glBufferData(GL_ARRAY_BUFFER, 9 * sizeof(GLfloat), vertices, GL_STATIC_DRAW);
@@ -278,7 +278,7 @@ int labb1_triangle()
 	glActiveTexture(GL_TEXTURE0);
 	Texture2D tex{ "maskros512.tga" };
 
-	ShaderProgram program{"labb1-1.vert", "labb1-1.frag"};
+	ShaderProgram program{ "labb1-1.vert", "labb1-1.frag" };
 	try
 	{
 		program.compile();
@@ -300,7 +300,7 @@ int labb1_triangle()
 	GLfloat timeElapsed = 0.f;
 	GLuint frames = 0;
 
-	while(!window.shouldClose())
+	while (!window.shouldClose())
 	{
 		GLfloat oldTime = time;
 		time = (GLfloat)glfwGetTime();
@@ -340,8 +340,6 @@ int labb1_bunny()
 {
 	try
 	{
-
-
 		//============================================================================
 		// Init
 		//============================================================================
@@ -355,11 +353,12 @@ int labb1_bunny()
 		Model* m;
 		m = LoadModel("bunnyplus.obj");
 
-		GLuint bunnyVertexArrayObjID; // VAO
-		GLuint bunnyVertexBufferObjID; // VBO
-		GLuint bunnyIndexBufferObjID; // EBO
-		GLuint bunnyNormalBufferObjID; // NBO 
-		GLuint bunnyTexCoordsBufferObjID; // TBO
+		GLuint bunnyVertexArrayObjID;
+
+		GLuint bunnyVertexBufferObjID;
+		GLuint bunnyIndexBufferObjID;
+		GLuint bunnyNormalBufferObjID;
+		GLuint bunnyTexCoordsBufferObjID;
 
 		glGenVertexArrays(1, &bunnyVertexArrayObjID);
 		glGenBuffers(1, &bunnyVertexBufferObjID);
@@ -391,7 +390,7 @@ int labb1_bunny()
 			glBufferData(GL_ARRAY_BUFFER, m->numVertices * 2 * sizeof(GLfloat), m->texCoordArray, GL_STATIC_DRAW);
 			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
 			glEnableVertexAttribArray(2);
-	}
+		}
 
 		//============================================================================
 		// Textures
@@ -399,7 +398,10 @@ int labb1_bunny()
 
 		glActiveTexture(GL_TEXTURE0);
 
-		Texture2D texture{ "conc.tga" };
+		// TODO: Encapsulate for guarantee of memory release
+		TextureMap textures;
+		textures.emplace("Concrete", new Texture2D{ "conc.tga" });
+		textures.emplace("Flower", new Texture2D{ "maskros512.tga" });
 
 #if 0
 		GLuint textureID;
@@ -599,7 +601,11 @@ int labb1_bunny()
 			glUniform3f(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "material.specular"), 0.633f, 0.727811f, 0.633f);
 			glUniform1f(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "material.shininess"), 0.6f*128.f);
 
-			glUniform1i(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "texUnit"), 0);
+			//glUniform1i(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "texUnit"), 0);
+
+			shaderProgram.uploadUniform("texUnit", 0);
+
+			textures.at("Concrete")->bind(0);
 
 			glBindVertexArray(bunnyVertexArrayObjID);    // Select VAO
 			glDrawElements(GL_TRIANGLES, m->numIndices, GL_UNSIGNED_INT, 0L);
@@ -610,7 +616,7 @@ int labb1_bunny()
 		DisposeModel(m);
 
 		glfwTerminate();
-}
+	}
 	catch (const std::exception& ex)
 	{
 		std::cerr << "[FATAL] Caught exception at main level:" << std::endl << ex.what() << std::endl;
@@ -626,5 +632,5 @@ int labb1_bunny()
 
 int main()
 {
-	return labb1_triangle();
+	return labb1_bunny();
 }
