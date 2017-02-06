@@ -35,13 +35,14 @@ uniform sampler2D texUnit;
 void main()
 {
 	// Ambient color calculation
-	vec3 ambient = light.ambient*material.ambient;
+	vec3 ambient = vec3(0.2,0.2,0.2);
 
 	// Diffuse color calculation
 	vec3 norm = normalize(normal);
 	vec3 light_dir = normalize(light.position - FragPos);
 	float diff = max(dot(norm, light_dir), 0.0);
-	vec3 diffuse = light.diffuse * (diff * material.diffuse);
+	//vec3 diffuse = light.diffuse * (diff * material.diffuse);
+	vec3 diffuse = light.diffuse * diff;
 
 	// Specular light calculation
 	vec3 view_dir = normalize(view_pos - FragPos);
@@ -55,10 +56,12 @@ void main()
 
 	vec4 objColor = texture(texUnit, texCoords);
 
-	//frag_color = vec4(result, 1.0f);
-	frag_color = vec4(result, 1.0f)*objColor;
+	// Labb 2 Uppgift 1
+	// frag_color = vec4(texCoords, 0.0f, 1.0f);
+
+	// Labb 2 Uppgift 2
 	//frag_color = objColor;
 
-	// Detta ger en cool färgning baserad på normalen för ytan.
-	//frag_color = vec4(0.5+normal.x/2, 0.5 + normal.y / 2, 0.5 + normal.z / 2, 1.0f);
+	// Labb 2 Uppgift 5
+	frag_color = objColor * diffuse;
 }

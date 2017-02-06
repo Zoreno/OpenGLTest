@@ -11,10 +11,6 @@
 
 #include <map>
 
-class Texture2D;
-
-typedef std::map<std::string, Texture2D*> TextureMap;
-
 class Texture2D
 {
 public:
@@ -46,4 +42,6 @@ private:
 
 	friend void swap(Texture2D& first, Texture2D& second) noexcept;
 };
+
+typedef std::map<std::string, Texture2D*> TextureMap;
 

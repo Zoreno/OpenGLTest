@@ -15,6 +15,7 @@ uniform float time;
 void main()
 {
 	normal = mat3(transpose(inverse(model)))*vertex_normal;
+	
 	gl_Position = transform*vec4(vertex_position.xyz, 1.0);
 	FragPos = vec3(model*vec4(vertex_position, 1.0f));
 	texCoords = vertex_texture_coordinates;
