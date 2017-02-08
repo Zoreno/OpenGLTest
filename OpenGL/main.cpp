@@ -15,6 +15,8 @@
 #include "TGA.h"
 #include "Texture2D.h"
 
+#include "ConfigFile.h"
+
 using namespace glm;
 
 void GLFWError(int errorCode, const char* message)

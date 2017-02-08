@@ -116,6 +116,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="ConfigFile.cpp" />
     <ClCompile Include="loadobj.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="PointLight.cpp" />
@@ -135,6 +136,7 @@
   <ItemGroup>
     <ClInclude Include="BMP.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="ConfigFile.h" />
     <ClInclude Include="loadobj.h" />
     <ClInclude Include="PixelInfo.h" />
     <ClInclude Include="PointLight.h" />

@@ -72,6 +72,9 @@
     <ClCompile Include="PointLight.cpp">
       <Filter>Source Files\Light</Filter>
     </ClCompile>
+    <ClCompile Include="ConfigFile.cpp">
+      <Filter>Source Files\FileLoading</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="testfrag.shader">
@@ -120,6 +123,9 @@
     </ClInclude>
     <ClInclude Include="PointLight.h">
       <Filter>Header Files\Light</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigFile.h">
+      <Filter>Header Files\FileLoading</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
