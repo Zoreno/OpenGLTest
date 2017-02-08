@@ -63,5 +63,5 @@ void main()
 	//frag_color = objColor;
 
 	// Labb 2 Uppgift 5
-	frag_color = objColor * diffuse;
+	frag_color = objColor * vec4(diffuse, 1.0);
 }

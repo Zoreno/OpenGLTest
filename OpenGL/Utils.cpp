@@ -1,3 +1,10 @@
+/**
+ * @file	Utils.cpp
+ * @Author	Joakim Bertils
+ * @date	2017-02-08
+ * @brief	TODO: Insert documentation
+ */
+
 #include "Utils.h"
 
 #include <fstream>
@@ -5,6 +12,6 @@
 
 std::string getStringFromFile(const std::string& path)
 {
-	std::ifstream fileStream(path);
-	return std::string{ std::istreambuf_iterator<char>(fileStream), std::istreambuf_iterator<char>() };
+	// Stream iterator magic
+	return std::string{ std::istreambuf_iterator<char>(std::ifstream(path)), std::istreambuf_iterator<char>() };
 }

@@ -896,9 +896,7 @@ int labb2_bunny()
 	}
 
 	return 0;
-
 }
-
 
 int main()
 {
