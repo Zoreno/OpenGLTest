@@ -35,14 +35,13 @@ uniform sampler2D texUnit;
 void main()
 {
 	// Ambient color calculation
-	vec3 ambient = vec3(0.2,0.2,0.2);
+	vec3 ambient = light.ambient*material.ambient;
 
 	// Diffuse color calculation
 	vec3 norm = normalize(normal);
 	vec3 light_dir = normalize(light.position - FragPos);
 	float diff = max(dot(norm, light_dir), 0.0);
-	//vec3 diffuse = light.diffuse * (diff * material.diffuse);
-	vec3 diffuse = light.diffuse * diff;
+	vec3 diffuse = light.diffuse * (diff * material.diffuse);
 
 	// Specular light calculation
 	vec3 view_dir = normalize(view_pos - FragPos);
@@ -51,7 +50,7 @@ void main()
 	float spec = pow(max(dot(view_dir, reflect_dir), 0.0f), material.shininess);
 	vec3 specular = light.specular * (spec * material.specular);
 
-	// Multiply them
+	// Add them
 	vec3 result = (ambient + diffuse + specular);
 
 	vec4 objColor = texture(texUnit, texCoords);
@@ -63,5 +62,5 @@ void main()
 	//frag_color = objColor;
 
 	// Labb 2 Uppgift 5
-	frag_color = objColor * vec4(diffuse, 1.0);
+	frag_color = objColor * vec4(result, 1.f);
 }

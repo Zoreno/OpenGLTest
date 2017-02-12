@@ -116,18 +116,23 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Collada.cpp" />
     <ClCompile Include="ConfigFile.cpp" />
     <ClCompile Include="loadobj.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="PointLight.cpp" />
+    <ClCompile Include="RawModel.cpp" />
     <ClCompile Include="ShaderProgram.cpp" />
     <ClCompile Include="BMP.cpp" />
     <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="TGA.cpp" />
     <ClCompile Include="Utils.cpp" />
+    <ClCompile Include="VertexArrayObject.cpp" />
+    <ClCompile Include="VertexBufferObject.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="ConfigFile.inl" />
     <None Include="labb1-1.frag" />
     <None Include="labb1-1.vert" />
     <None Include="testfrag.shader" />
@@ -136,15 +141,19 @@
   <ItemGroup>
     <ClInclude Include="BMP.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Collada.h" />
     <ClInclude Include="ConfigFile.h" />
     <ClInclude Include="loadobj.h" />
     <ClInclude Include="PixelInfo.h" />
     <ClInclude Include="PointLight.h" />
+    <ClInclude Include="RawModel.h" />
     <ClInclude Include="ShaderProgram.h" />
     <ClInclude Include="Texture2D.h" />
     <ClInclude Include="TextureFile.h" />
     <ClInclude Include="TGA.h" />
     <ClInclude Include="Utils.h" />
+    <ClInclude Include="VertexArrayObject.h" />
+    <ClInclude Include="VertexBufferObject.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

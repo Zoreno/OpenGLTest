@@ -40,6 +40,9 @@
     <Filter Include="Source Files\Light">
       <UniqueIdentifier>{7b9b37d7-f36a-48dd-82cb-eed46a6f7eac}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Inline Files">
+      <UniqueIdentifier>{f2695dc3-6e50-4cf4-9d4c-4f8e168fa3c4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -75,6 +78,18 @@
     <ClCompile Include="ConfigFile.cpp">
       <Filter>Source Files\FileLoading</Filter>
     </ClCompile>
+    <ClCompile Include="Collada.cpp">
+      <Filter>Source Files\FileLoading\ObjectFormats</Filter>
+    </ClCompile>
+    <ClCompile Include="VertexArrayObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VertexBufferObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RawModel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="testfrag.shader">
@@ -88,6 +103,9 @@
     </None>
     <None Include="labb1-1.vert">
       <Filter>Shaders</Filter>
+    </None>
+    <None Include="ConfigFile.inl">
+      <Filter>Inline Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -126,6 +144,18 @@
     </ClInclude>
     <ClInclude Include="ConfigFile.h">
       <Filter>Header Files\FileLoading</Filter>
+    </ClInclude>
+    <ClInclude Include="Collada.h">
+      <Filter>Header Files\FileLoading\ObjectFormats</Filter>
+    </ClInclude>
+    <ClInclude Include="RawModel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexArrayObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexBufferObject.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

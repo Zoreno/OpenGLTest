@@ -10,6 +10,7 @@
 #include <string>
 #include <map>
 #include <stdexcept>
+#include <sstream>
 
 /**
  * @brief Configuration file key not found exception
@@ -76,6 +77,19 @@ public:
 	 * @return Value for key.
 	 */
 	std::string get(const std::string& key) const;
+
+
+	/**
+	 * @brief Gets the value for the specified key in specified type.
+	 * 
+	 * Uses a std::stringstream to parse string content to type @T. 
+	 * 
+	 * @tparam T Type for the value to be interpreted as.
+	 * @param key The key to check for.
+	 * @return Value for the key.
+	 */
+	template <typename T>
+	T get(const std::string& key) const;
 private:
 
 	/**
@@ -88,3 +102,5 @@ private:
 	 */
 	std::map<std::string, std::string> data{};
 };
+
+#include "ConfigFile.inl"
