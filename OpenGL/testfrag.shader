@@ -31,6 +31,7 @@ uniform Material material;
 uniform Light light;
 
 uniform sampler2D texUnit;
+uniform sampler2D texUnit2;
 
 void main()
 {
@@ -53,8 +54,10 @@ void main()
 	// Add them
 	vec3 result = (ambient + diffuse + specular);
 
-	vec4 objColor = texture(texUnit, texCoords);
+	vec4 objColor1 = texture(texUnit, texCoords);
+	vec4 objColor2 = texture(texUnit2, texCoords);
 
+	vec4 objColor = mix(objColor1, objColor2, abs(sin(time)));
 	// Labb 2 Uppgift 1
 	// frag_color = vec4(texCoords, 0.0f, 1.0f);
 

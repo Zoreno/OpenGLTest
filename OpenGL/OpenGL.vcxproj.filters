@@ -107,6 +107,12 @@
     <None Include="ConfigFile.inl">
       <Filter>Inline Files</Filter>
     </None>
+    <None Include="skyboxFragment.shader">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="skyboxVertex.shader">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Window.h">

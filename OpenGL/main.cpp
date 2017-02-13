@@ -58,6 +58,11 @@ bool recompileShaders(ShaderProgram& currentShader)
 	return true;
 }
 
+void reloadConfig(ConfigFile& file)
+{
+	file.parse("test.cfg");
+}
+
 int labb1_cube()
 {
 	GLfloat vertices[] = {
@@ -404,7 +409,7 @@ int labb1_bunny()
 
 #endif
 
-		RawModel rawModel{"bunnyplus.obj"};
+		RawModel rawModel{ "bunnyplus.obj" };
 
 		//============================================================================
 		// Textures
@@ -917,6 +922,379 @@ int labb2_bunny()
 	return 0;
 }
 
+int labb3_windmill()
+{
+	try
+	{
+		//============================================================================
+		// Init
+		//============================================================================
+
+		Window window{ 1024, 768, "Test" };
+
+		//============================================================================
+		// Vertex buffer setup
+		//============================================================================
+
+		Model* m;
+		m = LoadModelPlus("windmill-walls.obj");
+
+		Model* m2;
+		m2 = LoadModelPlus("windmill-roof.obj");
+
+		Model* m3;
+		m3 = LoadModelPlus("windmill-balcony.obj");
+
+		Model* m4;
+		m4 = LoadModelPlus("blade.obj");
+
+		Model* ground;
+		ground = LoadModelPlus("ground.obj");
+
+		Model* skybox;
+		skybox = LoadModelPlus("skybox.obj");
+
+		Model* bunny;
+		bunny = LoadModelPlus("bunnyplus.obj");
+
+		//============================================================================
+		// Textures
+		//============================================================================
+
+		glActiveTexture(GL_TEXTURE0);
+
+		// TODO: Encapsulate for guarantee of memory release
+		TextureMap textures;
+		textures.emplace("Concrete", new Texture2D{ "conc.tga" });
+		textures.emplace("Flower", new Texture2D{ "maskros512.tga" });
+		textures.emplace("ground", new Texture2D{ "grass.tga" });
+		textures.emplace("skybox", new Texture2D("SkyBox512.tga"));
+
+		//============================================================================
+		// Shaders
+		//============================================================================
+
+		ShaderProgram shaderProgram{ "testvert.shader", "testfrag.shader" };
+		try
+		{
+			shaderProgram.use();
+			shaderProgram.compile();
+
+			shaderProgram.bindAttribLocation(0, "vertex_position");
+			shaderProgram.bindAttribLocation(1, "vertex_normal");
+			shaderProgram.bindAttribLocation(2, "vertex_texture_coordinates");
+
+			shaderProgram.link();
+
+
+		}
+		catch (const ShaderProgramException& ex)
+		{
+			std::cerr << ex.what() << std::endl;
+			glfwTerminate();
+			return -1;
+		}
+
+		ShaderProgram skyboxShaderProgram("skyboxVertex.shader", "skyboxFragment.shader");
+		try
+		{
+			skyboxShaderProgram.use();
+			skyboxShaderProgram.compile();
+
+			skyboxShaderProgram.bindAttribLocation(0, "vertex_position");
+			skyboxShaderProgram.bindAttribLocation(1, "vertex_normal");
+			skyboxShaderProgram.bindAttribLocation(2, "vertex_texture_coordinates");
+
+			skyboxShaderProgram.link();
+		}
+		catch (const ShaderProgramException& ex)
+		{
+			std::cerr << ex.what() << std::endl;
+			glfwTerminate();
+			return -1;
+		}
+
+		glfwSetErrorCallback(GLFWError);
+
+		//============================================================================
+		// Final Setup
+		//============================================================================
+
+		glClearColor(0.f, 0.f, 0.f, 1.0f);
+
+		GLfloat time = (GLfloat)glfwGetTime();
+		GLfloat timeElapsed = 0.f;
+		GLuint frames = 0;
+
+		glfwSetInputMode(window.getHandle(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+		// Set render wireframe mode
+
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LESS);
+
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+
+		Camera camera{ glm::vec3(0.f,2.f,4.f) };
+
+		bool firstMouse = true;
+		GLfloat lastX{ 0.f };
+		GLfloat lastY{ 0.f };
+
+		bool forwardKeyPressed{ false };
+		bool backwardKeyPressed{ false };
+		bool leftKeyPressed{ false };
+		bool rightKeyPressed{ false };
+
+		ConfigFile positions{ "test.cfg" };
+
+		while (!window.shouldClose())
+		{
+			// Clear screen and depth buffer
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			//============================================================================
+			// Dynamic Uniforms
+			//============================================================================
+
+			// Recalculate time and FPS counter
+
+			GLfloat oldTime = time;
+			time = (GLfloat)glfwGetTime();
+			GLfloat timeDelta = (time - oldTime);
+			timeElapsed += timeDelta;
+			++frames;
+
+			if (timeElapsed > 1.f)
+			{
+				timeElapsed -= 1.f;
+				std::string newTitle = std::to_string(frames) + std::string{ " FPS" };
+				window.setTitle(newTitle);
+				frames = 0;
+			}
+
+			// Handle window events
+			WindowEvent ev;
+			if (window.pollEvent(ev))
+			{
+				switch (ev.type)
+				{
+				case KEY_EVENT:
+					if (ev.key.key == GLFW_KEY_W)
+					{
+						if (ev.key.action == GLFW_PRESS)
+							forwardKeyPressed = true;
+						else if (ev.key.action == GLFW_RELEASE)
+							forwardKeyPressed = false;
+					}
+					if (ev.key.key == GLFW_KEY_S)
+					{
+						if (ev.key.action == GLFW_PRESS)
+							backwardKeyPressed = true;
+						else if (ev.key.action == GLFW_RELEASE)
+							backwardKeyPressed = false;
+					}
+					if (ev.key.key == GLFW_KEY_A)
+					{
+						if (ev.key.action == GLFW_PRESS)
+							leftKeyPressed = true;
+						else if (ev.key.action == GLFW_RELEASE)
+							leftKeyPressed = false;
+					}
+					if (ev.key.key == GLFW_KEY_D)
+					{
+						if (ev.key.action == GLFW_PRESS)
+							rightKeyPressed = true;
+						else  if (ev.key.action == GLFW_RELEASE)
+							rightKeyPressed = false;
+					}
+					if (ev.key.key == GLFW_KEY_F5)
+					{
+						if (ev.key.action == GLFW_PRESS)
+							recompileShaders(shaderProgram);
+					}
+
+					if (ev.key.key == GLFW_KEY_F6)
+					{
+						if (ev.key.action == GLFW_PRESS)
+							reloadConfig(positions);
+					}
+					break;
+				case MOUSE_EVENT:
+				{
+					if (firstMouse)
+					{
+						lastX = ev.mouse.posx;
+						lastY = ev.mouse.posy;
+						firstMouse = false;
+					}
+
+					GLfloat xOffset = ev.mouse.posx - lastX;
+					GLfloat yOffset = lastY - ev.mouse.posy;
+
+					lastX = ev.mouse.posx;
+					lastY = ev.mouse.posy;
+
+					camera.processMouseMovement(xOffset, yOffset);
+				}
+				break;
+				default:
+					break;
+				}
+			}
+
+			if (forwardKeyPressed)
+				camera.processKeyboard(FORWARD, timeDelta);
+			if (backwardKeyPressed)
+				camera.processKeyboard(BACKWARD, timeDelta);
+			if (leftKeyPressed)
+				camera.processKeyboard(LEFT, timeDelta);
+			if (rightKeyPressed)
+				camera.processKeyboard(RIGHT, timeDelta);
+
+			glm::mat4 view = camera.getViewMatrix();
+			glm::mat4 projection = glm::perspective(radians(45.f), (GLfloat)window.getDimensions().x / (GLfloat)window.getDimensions().y, 0.1f, 100.f);
+
+			shaderProgram.uploadUniform("time", time);
+
+			shaderProgram.uploadUniform("view_pos", camera.getPosition());
+
+			// Light uniforms
+
+			glm::vec3 lightPos(4.f, 3.f, 3.f);
+			//glm::vec3 lightPos = camera.getPosition();
+			glm::vec3 lightColor = glm::vec3(1.f, 1.f, 1.f);
+			glm::vec3 diffuseColor = lightColor*0.7f; // Decrease the influence
+			glm::vec3 ambientColor = diffuseColor*0.5f; // Low influence
+
+			glUniform3f(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "light.position"), lightPos.x, lightPos.y, lightPos.z);
+			glUniform3f(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "light.ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
+			glUniform3f(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "light.diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
+			glUniform3f(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "light.specular"), 1.0f, 1.0f, 1.0f);
+
+			// Material Uniforms
+			glUniform3f(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "material.ambient"), 1.f, 1.f, 1.f);
+			glUniform3f(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "material.diffuse"), 1.f, 1.f, 1.f);
+			glUniform3f(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "material.specular"), 1.f, 1.f, 1.f);
+			glUniform1f(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "material.shininess"), 0.6f*128.f);
+
+
+			skyboxShaderProgram.use();
+			glm::mat4 skyboxModel = glm::translate(glm::mat4{ 1.f }, camera.getPosition());
+
+			glm::mat4 skyboxView = camera.getViewMatrix();
+
+			skyboxView[0][3] = 0;
+			skyboxView[1][3] = 0;
+			skyboxView[2][3] = 0;
+
+			mat4 skyboxTransform = projection*skyboxView*skyboxModel;
+			skyboxShaderProgram.uploadUniform("transform", skyboxTransform);
+			skyboxShaderProgram.uploadUniform("model", skyboxModel);
+			skyboxShaderProgram.uploadUniform("texUnit", 0);
+
+			textures.at("skybox")->bind(0);
+
+			glDisable(GL_DEPTH_TEST);
+
+			glCullFace(GL_FRONT);
+
+			DrawModel(skybox, skyboxShaderProgram.getShaderProgramHandle(), "vertex_position", "vertex_normal", "vertex_texture_coordinates");
+
+			glCullFace(GL_BACK);
+
+			glEnable(GL_DEPTH_TEST);
+
+			shaderProgram.use();
+
+			textures.at("Flower")->bind(1);
+
+			glm::vec3 windmill_position{ 10.f,0.f,sin(time) };
+
+			shaderProgram.uploadUniform("texUnit", 0);
+			shaderProgram.uploadUniform("texUnit2", 1);
+
+			textures.at("Concrete")->bind(0);
+
+			glm::mat4 model = glm::translate(glm::mat4{ 1.f }, windmill_position);
+			glm::mat4 trans = projection*view*model;
+			shaderProgram.uploadUniform("transform", trans);
+			shaderProgram.uploadUniform("model", model);
+
+			DrawModel(m, shaderProgram.getShaderProgramHandle(), "vertex_position", "vertex_normal", "vertex_texture_coordinates");
+
+			textures.at("Flower")->bind(0);
+
+			DrawModel(m2, shaderProgram.getShaderProgramHandle(), "vertex_position", "vertex_normal", "vertex_texture_coordinates");
+
+			DrawModel(m3, shaderProgram.getShaderProgramHandle(), "vertex_position", "vertex_normal", "vertex_texture_coordinates");
+
+			glm::vec3 trans_vec{ positions.get<float>("centerX"),positions.get<float>("centerY"), positions.get<float>("centerZ") };
+
+			glm::mat4 translation = glm::translate(model, trans_vec);
+
+			glm::vec3 axis_x(1.f, 0.f, 0.f);
+
+			glm::mat4 timeRotation = glm::rotate(glm::mat4{ 1.f }, glm::radians(time*10.f), axis_x);
+
+			for (int i{ 0 }; i < 4; ++i)
+			{
+				glm::mat4 localRotation = glm::rotate(glm::mat4{ 1.f }, glm::radians(90.f*i), axis_x);
+				glm::mat4 model = translation*localRotation*timeRotation;
+
+				mat4 trans = projection*view*model;
+				shaderProgram.uploadUniform("transform", trans);
+				shaderProgram.uploadUniform("model", model);
+
+				DrawModel(m4, shaderProgram.getShaderProgramHandle(), "vertex_position", "vertex_normal", "vertex_texture_coordinates");
+			}
+
+			textures.at("ground")->bind(0);
+
+			model = mat4{ 1.f };
+			trans = projection*view*model;
+			shaderProgram.uploadUniform("transform", trans);
+			shaderProgram.uploadUniform("model", model);
+
+			DrawModel(ground, shaderProgram.getShaderProgramHandle(), "vertex_position", "vertex_normal", "vertex_texture_coordinates");
+
+			model = glm::translate(glm::scale(glm::mat4{ 1.f }, glm::vec3(3.0f, 3.0f, 3.0f)), glm::vec3{ 0.f,0.5f,0.f });
+			trans = projection*view*model;
+			shaderProgram.uploadUniform("transform", trans);
+			shaderProgram.uploadUniform("model", model);
+
+			textures.at("Concrete")->bind(0);
+
+			DrawModel(bunny, shaderProgram.getShaderProgramHandle(), "vertex_position", "vertex_normal", "vertex_texture_coordinates");
+
+			window.display();
+		}
+
+		DisposeModel(m);
+		DisposeModel(m2);
+		DisposeModel(m3);
+		DisposeModel(m4);
+		DisposeModel(ground);
+		DisposeModel(skybox);
+		DisposeModel(bunny);
+
+		glfwTerminate();
+	}
+	catch (const std::exception& ex)
+	{
+		std::cerr << "[FATAL] Caught exception at main level:" << std::endl << ex.what() << std::endl;
+	}
+	catch (...)
+	{
+		std::cerr << "[FATAL] Caught unknown exception at main level" << std::endl;
+	}
+
+	return 0;
+}
+
 int labb3_world()
 {
 	try
@@ -952,15 +1330,6 @@ int labb3_world()
 		textures.emplace("Flower", new Texture2D{ "maskros512.tga" });
 		textures.emplace("ground", new Texture2D{ "grass.tga" });
 
-#if 0
-		GLuint textureID;
-		glActiveTexture(GL_TEXTURE0);
-		glGenTextures(1, &textureID);
-		TGA tgaFile("maskros512.tga");
-		glBindTexture(GL_TEXTURE_2D, textureID);
-		glTexImage2D(GL_TEXTURE_2D, 0, tgaFile.hasAlpha() ? GL_RGBA : GL_RGB, tgaFile.getWidth(), tgaFile.getHeight(), 0, tgaFile.hasAlpha() ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, tgaFile.getPixels().data());
-		glGenerateMipmap(GL_TEXTURE_2D);
-#endif 
 		//============================================================================
 		// Shaders
 		//============================================================================
@@ -1197,7 +1566,6 @@ int labb3_world()
 	return 0;
 }
 
-
 int collada_test()
 {
 	collada::COLLADA colladaStruct;
@@ -1251,7 +1619,5 @@ int config_test()
 
 int main()
 {
-
-
-	return labb3_world();
+	return labb3_windmill();
 }
