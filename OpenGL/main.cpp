@@ -1048,6 +1048,8 @@ int labb3_windmill()
 		bool backwardKeyPressed{ false };
 		bool leftKeyPressed{ false };
 		bool rightKeyPressed{ false };
+		bool spacePressed{ false };
+		bool shiftPressed{ false };
 
 		ConfigFile positions{ "test.cfg" };
 
@@ -1111,6 +1113,20 @@ int labb3_windmill()
 						else  if (ev.key.action == GLFW_RELEASE)
 							rightKeyPressed = false;
 					}
+					if (ev.key.key == GLFW_KEY_SPACE)
+					{
+						if (ev.key.action == GLFW_PRESS)
+							spacePressed = true;
+						else  if (ev.key.action == GLFW_RELEASE)
+							spacePressed = false;
+					}
+					if (ev.key.key == GLFW_KEY_LEFT_SHIFT)
+					{
+						if (ev.key.action == GLFW_PRESS)
+							shiftPressed = true;
+						else  if (ev.key.action == GLFW_RELEASE)
+							shiftPressed = false;
+					}
 					if (ev.key.key == GLFW_KEY_F5)
 					{
 						if (ev.key.action == GLFW_PRESS)
@@ -1154,6 +1170,12 @@ int labb3_windmill()
 				camera.processKeyboard(LEFT, timeDelta);
 			if (rightKeyPressed)
 				camera.processKeyboard(RIGHT, timeDelta);
+			if (spacePressed) {
+				if (shiftPressed)
+					camera.processKeyboard(ABSDOWN, timeDelta);
+				else
+					camera.processKeyboard(ABSUP, timeDelta);
+			}
 
 			glm::mat4 view = camera.getViewMatrix();
 			glm::mat4 projection = glm::perspective(radians(45.f), (GLfloat)window.getDimensions().x / (GLfloat)window.getDimensions().y, 0.1f, 100.f);
