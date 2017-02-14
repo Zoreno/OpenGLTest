@@ -192,11 +192,6 @@ private:
 	 * @brief Camera up vector.
 	 */
 	glm::vec3 up;
-
-	/**
-	* @brief Absolute non-relative up vector.
-	*/
-	glm::vec3 absup;
 	
 	/**
 	 * @brief Camera right vector.

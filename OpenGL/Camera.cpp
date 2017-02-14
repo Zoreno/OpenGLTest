@@ -9,8 +9,7 @@ Camera::Camera(glm::vec3 position, glm::vec3 up, GLfloat yaw, GLfloat pitch)
 	yaw{ yaw },
 	pitch{ pitch },
 	movementSpeed{ SPEED },
-	mouseSensitivity{ SENSITIVITY },
-	absup{glm::vec3{0.f,1.f,0.f}}
+	mouseSensitivity{ SENSITIVITY }
 {
 	updateCameraVectors();
 }
@@ -38,10 +37,10 @@ void Camera::processKeyboard(CameraMovement direction, GLfloat timeDelta)
 		position += right * velocity;
 		break;
 	case ABSUP:
-		position += absup * velocity;
+		position += worldUp * velocity;
 		break;
 	case ABSDOWN:
-		position -= absup * velocity;
+		position -= worldUp * velocity;
 		break;
 	}
 }
