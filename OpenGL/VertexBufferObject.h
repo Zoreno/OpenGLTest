@@ -31,7 +31,7 @@ public:
 	void storeData(GLuint size, const void* data, GLenum usage);
 	void setupVertexAttribPointer(GLuint location, GLuint elementSize);
 
-	GLuint get() const;
+	GLuint getHandle() const;
 	GLenum getTarget() const;
 	GLuint getSize() const;
 private:

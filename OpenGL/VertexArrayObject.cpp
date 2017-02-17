@@ -27,7 +27,7 @@ void VertexArrayObject::unbind()
 	glBindVertexArray(0);
 }
 
-GLuint VertexArrayObject::get() const
+GLuint VertexArrayObject::getHandle() const
 {
 	return vao;
 }

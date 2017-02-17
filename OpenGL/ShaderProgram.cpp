@@ -88,6 +88,7 @@ void ShaderProgram::link() const
 {
 	GLint success;
 	GLchar infoLog[512];
+
 	glLinkProgram(shaderProgramHandle);
 
 	glGetProgramiv(shaderProgramHandle, GL_LINK_STATUS, &success);
@@ -121,30 +122,48 @@ GLuint ShaderProgram::getShaderProgramHandle() const
 
 void ShaderProgram::uploadUniform(const std::string& name, float value)
 {
+	use();
 	glUniform1f(glGetUniformLocation(shaderProgramHandle, name.c_str()), value);
 }
 
 void ShaderProgram::uploadUniform(const std::string& name, int value)
 {
+	use();
 	glUniform1i(glGetUniformLocation(shaderProgramHandle, name.c_str()), value);
 }
 
 void ShaderProgram::uploadUniform(const std::string& name, glm::vec2 value)
 {
+	use();
 	glUniform2f(glGetUniformLocation(shaderProgramHandle, name.c_str()), value.x, value.y);
 }
 
 void ShaderProgram::uploadUniform(const std::string& name, glm::vec3 value)
 {
+	use();
 	glUniform3f(glGetUniformLocation(shaderProgramHandle, name.c_str()), value.x, value.y, value.z);
 }
 
 void ShaderProgram::uploadUniform(const std::string& name, glm::vec4 value)
 {
+	use();
 	glUniform4f(glGetUniformLocation(shaderProgramHandle, name.c_str()), value.x, value.y, value.z, value.w);
 }
 
 void ShaderProgram::uploadUniform(const std::string& name, glm::mat4 value)
 {
+	use();
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgramHandle, name.c_str()), 1, GL_FALSE, glm::value_ptr(value));
+}
+
+void swap(ShaderProgram& lhs, ShaderProgram& rhs) noexcept
+{
+
+	using std::swap;
+	swap(lhs.vertexShaderPath, rhs.vertexShaderPath);
+	swap(lhs.fragmentShaderPath, rhs.fragmentShaderPath);
+	swap(lhs.shaderProgramHandle, rhs.shaderProgramHandle);
+	swap(lhs.vertexShaderHandle, rhs.vertexShaderHandle);
+	swap(lhs.fragmentShaderHandle, rhs.fragmentShaderHandle);
+
 }

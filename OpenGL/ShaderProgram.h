@@ -130,6 +130,13 @@ public:
 	* @param value Value to be upload.
 	*/
 	void uploadUniform(const std::string& name, glm::mat4 value);
+
+	/**
+	 * @brief Swaps two shaders
+	 * @param lhs First shader
+	 * @param rhs Second Shader
+	 */
+	friend void swap(ShaderProgram& lhs, ShaderProgram& rhs) noexcept;
 private:
 
 	/**

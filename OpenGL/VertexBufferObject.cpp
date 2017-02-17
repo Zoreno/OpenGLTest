@@ -44,7 +44,7 @@ void VertexBufferObject::setupVertexAttribPointer(GLuint location, GLuint elemen
 	unbind();
 }
 
-GLuint VertexBufferObject::get() const
+GLuint VertexBufferObject::getHandle() const
 {
 	return vbo;
 }

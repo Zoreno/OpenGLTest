@@ -29,7 +29,7 @@ public:
 	void bind();
 	void unbind();
 
-	GLuint get() const;
+	GLuint getHandle() const;
 private:
 
 	GLuint vao;

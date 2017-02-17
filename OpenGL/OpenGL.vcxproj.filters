@@ -43,6 +43,12 @@
     <Filter Include="Inline Files">
       <UniqueIdentifier>{f2695dc3-6e50-4cf4-9d4c-4f8e168fa3c4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\FileLoading\Sound">
+      <UniqueIdentifier>{42eb15e0-4a30-41d1-a799-c575f8749cd5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\FileLoading\Sound">
+      <UniqueIdentifier>{b88ba541-1c16-4848-b9c0-fa8c1d632578}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -89,6 +95,9 @@
     </ClCompile>
     <ClCompile Include="RawModel.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WaveFile.cpp">
+      <Filter>Source Files\FileLoading\Sound</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -162,6 +171,9 @@
     </ClInclude>
     <ClInclude Include="VertexBufferObject.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WaveFile.h">
+      <Filter>Header Files\FileLoading\Sound</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

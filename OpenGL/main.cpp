@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <fstream>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -23,6 +24,11 @@
 
 #include "RawModel.h"
 
+#include <AL/al.h>
+#include <AL/alc.h>
+
+#include "WaveFile.h"
+
 using namespace glm;
 
 void GLFWError(int errorCode, const char* message)
@@ -32,6 +38,7 @@ void GLFWError(int errorCode, const char* message)
 
 bool recompileShaders(ShaderProgram& currentShader)
 {
+	/*
 	ShaderProgram shaderProgram{ "testvert.shader", "testfrag.shader" };
 	try
 	{
@@ -54,6 +61,19 @@ bool recompileShaders(ShaderProgram& currentShader)
 	std::cout << "Shader recompilation successful" << std::endl;
 
 	currentShader = std::move(shaderProgram);
+
+	return true;
+	*/
+
+	currentShader.compile();
+
+	currentShader.bindAttribLocation(0, "vertex_position");
+	currentShader.bindAttribLocation(1, "vertex_normal");
+	currentShader.bindAttribLocation(2, "vertex_texture_coordinates");
+
+	currentShader.link();
+
+	currentShader.use();
 
 	return true;
 }
@@ -985,8 +1005,6 @@ int labb3_windmill()
 			shaderProgram.bindAttribLocation(2, "vertex_texture_coordinates");
 
 			shaderProgram.link();
-
-
 		}
 		catch (const ShaderProgramException& ex)
 		{
@@ -1181,7 +1199,6 @@ int labb3_windmill()
 			glm::mat4 projection = glm::perspective(radians(45.f), (GLfloat)window.getDimensions().x / (GLfloat)window.getDimensions().y, 0.1f, 100.f);
 
 			shaderProgram.uploadUniform("time", time);
-
 			shaderProgram.uploadUniform("view_pos", camera.getPosition());
 
 			// Light uniforms
@@ -1639,7 +1656,317 @@ int config_test()
 	return 0;
 }
 
+int openAL_test()
+{
+	// Dummy read to flush error code.
+	alGetError();
+
+	// Open a device
+	ALCdevice* device;
+	ALCcontext* context;
+	ALenum error;
+
+	device = alcOpenDevice(NULL);
+
+	if (!device)
+	{
+		std::cout << "No Device" << std::endl;
+		return -1;
+	}
+
+	context = alcCreateContext(device, NULL);
+
+	alcMakeContextCurrent(context);
+
+	if (!context)
+	{
+		std::cout << "No Context" << std::endl;
+		return -1;
+	}
+
+#define NUM_BUFFERS 1
+#define NUM_SOURCES 1
+
+	ALuint buffers[NUM_BUFFERS];
+	ALuint sources[NUM_SOURCES];
+
+	// Generate and fill buffers
+	alGenBuffers(NUM_BUFFERS, buffers);
+	error = alGetError();
+	if (error != AL_NO_ERROR)
+	{
+		std::cerr << '1' << alcGetString(device, error) << std::endl;
+		alDeleteBuffers(NUM_BUFFERS, buffers);
+		return -1;
+	}
+
+	WaveFile blip{ "Music.wav" , true };
+
+	std::cout << "Source Size: " << blip.getSize() << std::endl;
+	std::cout << "Source Freq: " << blip.getFrequency() << std::endl;
+	
+	std::cout << "Source format: ";
+
+	switch(blip.getFormat())
+	{
+	case AL_FORMAT_STEREO16:
+		std::cout << "AL_FORMAT_STEREO16";
+		break;
+	case AL_FORMAT_STEREO8:
+		std::cout << "AL_FORMAT_STEREO8";
+		break;
+	case AL_FORMAT_MONO16:
+		std::cout << "AL_FORMAT_MONO16";
+		break;
+	case AL_FORMAT_MONO8:
+		std::cout << "AL_FORMAT_MONO8";
+		break;
+	}
+
+	std::cout << std::endl;
+
+	alBufferData(buffers[0], blip.getFormat(), blip.getData(), blip.getSize(), blip.getFrequency());
+	error = alGetError();
+	if (error != AL_NO_ERROR)
+	{
+		std::cerr << '2' << alcGetString(device, error) << std::endl;
+		alDeleteBuffers(NUM_BUFFERS, buffers);
+		return -1;
+	}
+
+	// Generate and assign sources
+
+	alGenSources(NUM_SOURCES, sources);
+	error = alGetError();
+	if (error != AL_NO_ERROR)
+	{
+		std::cerr << '3' << alcGetString(device, error) << std::endl;
+		alDeleteBuffers(NUM_BUFFERS, buffers);
+		alDeleteSources(NUM_SOURCES, sources);
+		return -1;
+	}
+
+	alSourcei(sources[0], AL_BUFFER, buffers[0]);
+	error = alGetError();
+	if (error != AL_NO_ERROR)
+	{
+		std::cerr << '4' << alcGetString(device, error) << std::endl;
+		alDeleteBuffers(NUM_BUFFERS, buffers);
+		alDeleteSources(NUM_SOURCES, sources);
+		return -1;
+	}
+
+	// Position source
+
+	ALfloat sourcePos[3] = { 0.f,0.f,0.f };
+	ALfloat sourceVel[3] = { 0.f,0.f,0.f };
+
+	alSourcefv(sources[0], AL_POSITION, sourcePos);
+	error = alGetError();
+	if (error != AL_NO_ERROR)
+	{
+		std::cerr << '5' << alcGetString(device, error) << std::endl;
+		alDeleteBuffers(NUM_BUFFERS, buffers);
+		alDeleteSources(NUM_SOURCES, sources);
+		return -1;
+	}
+
+	alSourcefv(sources[0], AL_VELOCITY, sourceVel);
+	error = alGetError();
+	if (error != AL_NO_ERROR)
+	{
+		std::cerr << '6' << alcGetString(device, error) << std::endl;
+		alDeleteBuffers(NUM_BUFFERS, buffers);
+		alDeleteSources(NUM_SOURCES, sources);
+		return -1;
+	}
+
+	alSourcef(sources[0], AL_PITCH, 1);
+	error = alGetError();
+	if (error != AL_NO_ERROR)
+	{
+		std::cerr << '8' << alcGetString(device, error) << std::endl;
+		alDeleteBuffers(NUM_BUFFERS, buffers);
+		alDeleteSources(NUM_SOURCES, sources);
+		return -1;
+	}
+
+	alSourcef(sources[0], AL_GAIN, 1);
+	error = alGetError();
+	if (error != AL_NO_ERROR)
+	{
+		std::cerr << '9' << alcGetString(device, error) << std::endl;
+		alDeleteBuffers(NUM_BUFFERS, buffers);
+		alDeleteSources(NUM_SOURCES, sources);
+		return -1;
+	}
+
+	alSourcei(sources[0], AL_LOOPING, blip.getLoop());
+	error = alGetError();
+	if (error != AL_NO_ERROR)
+	{
+		std::cerr << '10' << alcGetString(device, error) << std::endl;
+		alDeleteBuffers(NUM_BUFFERS, buffers);
+		alDeleteSources(NUM_SOURCES, sources);
+		return -1;
+	}
+	// Position Listener
+
+	ALfloat listenerPos[3] = { 0.f,0.f,0.f };
+	ALfloat listenerVel[3] = { 0.f,0.f,0.f };
+
+	alListenerfv(AL_POSITION, listenerPos);
+	alListenerfv(AL_VELOCITY, listenerVel);
+	alListenerf(AL_GAIN, 1);
+	error = alGetError();
+	if (error != AL_NO_ERROR)
+	{
+		std::cerr << '11' << alcGetString(device, error) << std::endl;
+		alDeleteBuffers(NUM_BUFFERS, buffers);
+		alDeleteSources(NUM_SOURCES, sources);
+		return -1;
+	}
+
+	// Play Source
+
+	std::cout << "p - play" << std::endl << "s - stop" << std::endl << "q - quit" << std::endl;
+	while (true)
+	{
+		char c;
+		std::cin >> c;
+		if (c == 'q')
+			break;
+		if (c == 'p')
+			alSourcePlay(sources[0]);
+		if (c == 's')
+			alSourceStop(sources[0]);
+	}
+
+	alDeleteSources(NUM_SOURCES, sources);
+	alDeleteBuffers(NUM_BUFFERS, buffers);
+
+	alcMakeContextCurrent(NULL);
+	alcDestroyContext(context);
+	alcCloseDevice(device);
+
+	error = alGetError();
+	if (error != AL_NO_ERROR)
+	{
+		std::cerr << '12' << alcGetString(device, error) << std::endl;
+		return -1;
+	}
+
+	return 0;
+
+	// Device
+	// Context
+	// Source
+	// Buffer
+	// Listener
+}
+
+int WAV_test()
+{
+	char* source = "Jump3.wav";
+
+	std::ifstream fStream{ source };
+
+	if (!fStream.is_open())
+	{
+		std::cerr << "Could not open file" << std::endl;
+		return -1;
+	}
+
+	WAVHeader header;
+
+	fStream.read(reinterpret_cast<char*>(&header), sizeof(header));
+
+	// Check that file is in a RIFF chunk
+
+	if (strncmp(header.chunkID, "RIFF", 4) != 0)
+	{
+		std::cerr << "File not RIFF format" << std::endl;
+		return -1;
+	}
+
+	// Check that file is in WAVE format
+
+	if (strncmp(header.format, "WAVE", 4) != 0)
+	{
+		std::cerr << "File Not WAVE Format" << std::endl;
+		return -1;
+	}
+
+	if (strncmp(header.subChunk1ID, "fmt ", 4) != 0)
+	{
+		std::cerr << "Format sub-chunk expected" << std::endl;
+		return -1;
+	}
+
+	std::cout << "Successully read file " << source << " of size " << header.chunkSize << std::endl;
+
+	std::cout << "Format Header Data:" << std::endl;
+
+	std::cout << "Audio Format: " << header.audioFormat << std::endl;
+	std::cout << "Number of Channels: " << header.numChannels << std::endl;
+	std::cout << "Sample Rate: " << header.sampleRate << std::endl;
+	std::cout << "Byte Rate: " << header.byteRate << std::endl;
+	std::cout << "Block Align: " << header.blockAlign << std::endl;
+	std::cout << "Bits Per Sample: " << header.bitsPerSample << std::endl;
+
+	if (strncmp(header.subChunk2ID, "data", 4) != 0)
+	{
+		std::cerr << "Data sub-chunk expected" << std::endl;
+		return -1;
+	}
+
+	uint32_t dataSize = header.subChunk2Size;
+
+	std::cout << "Size of data sub-chunk: " << dataSize << std::endl;
+
+	// Allocate memory for data
+	void* data = nullptr;
+	data = malloc(dataSize);
+
+	if (data == nullptr)
+	{
+		std::cerr << "Could not allocate memory" << std::endl;
+		return -1;
+	}
+
+	//fStream.read(static_cast<char*>(data), dataSize);
+
+	char* dataPtr = static_cast<char*>(data);
+
+	for (uint32_t i{ 0 }; i < dataSize; ++i)
+	{
+		fStream.read(dataPtr + i, 1);
+	}
+
+	for (uint32_t i{ 0 }; i < 11000; ++i)
+	{
+		std::cout << (int)((char*)data)[i] << " ";
+	}
+
+	std::cout << std::endl;
+
+	free(data);
+	fStream.close();
+	return 0;
+}
+
+int print_WAV_content()
+{
+	WaveFile file{ "Jump3.wav" };
+
+	for(uint32_t i{0}; i < file.getSize(); ++i)
+	{
+		int val = (int)((char*)file.getData())[i];
+		std::cout << std::hex << val << " ";
+	}
+}
+
 int main()
 {
-	return labb3_windmill();
+	return openAL_test();
 }
