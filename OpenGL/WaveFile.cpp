@@ -1,3 +1,10 @@
+/**
+ * @file	WaveFile.cpp
+ * @Author	Joakim Bertils
+ * @date	2017-02-17
+ * @brief	WaveFile(.wav) format parser
+ */
+
 #include "WaveFile.h"
 
 #include <fstream>
