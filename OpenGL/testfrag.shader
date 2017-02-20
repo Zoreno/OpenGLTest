@@ -57,7 +57,9 @@ void main()
 	vec4 objColor1 = texture(texUnit, texCoords);
 	vec4 objColor2 = texture(texUnit2, texCoords);
 
-	vec4 objColor = mix(objColor1, objColor2, abs(sin(time)));
+	vec3 up = vec3(0, 1, 0);
+
+	vec4 objColor = mix(objColor1, objColor2, pow(clamp(dot(up, norm),0,1), 2));
 	// Labb 2 Uppgift 1
 	// frag_color = vec4(texCoords, 0.0f, 1.0f);
 

@@ -137,6 +137,12 @@
     <None Include="skyboxVertex.shader">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="terrain.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="terrain.frag">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Window.h">

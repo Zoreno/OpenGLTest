@@ -141,6 +141,8 @@
     <None Include="labb1-1.vert" />
     <None Include="skyboxFragment.shader" />
     <None Include="skyboxVertex.shader" />
+    <None Include="terrain.frag" />
+    <None Include="terrain.vert" />
     <None Include="testfrag.shader" />
     <None Include="testvert.shader" />
   </ItemGroup>

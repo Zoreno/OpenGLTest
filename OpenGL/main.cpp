@@ -31,6 +31,8 @@
 #include "AudioSource.h"
 #include "AudioListener.h"
 
+#include <list>
+
 using namespace glm;
 
 void GLFWError(int errorCode, const char* message)
@@ -2041,7 +2043,451 @@ int print_WAV_content()
 	return 0;
 }
 
+glm::vec3 getVector(int x1, int z1, int x2, int z2, const TGA& tex)
+{
+	glm::vec3 vec;
+
+	vec.x = x2 - x1;
+	vec.z = z2 - z1;
+
+	vec.y = tex.getPixels()[(x2 + z2 * tex.getWidth()) * ((tex.hasAlpha() ? 32 : 24) / 8)] / 10.0 -
+		tex.getPixels()[(x1 + z1 * tex.getWidth()) * ((tex.hasAlpha() ? 32 : 24) / 8)] / 10.0;
+
+	return vec;
+}
+
+float getGridHeight(int x, int z, Model* model, int width)
+{
+	return model->vertexArray[(x + width*z) * 3 + 1];;
+}
+
+float getHeight(float x, float z, Model* model, int width)
+{
+	int x_int = static_cast<int>(x);
+	float x_rem = x - x_int;
+
+	int z_int = static_cast<int>(z);
+	float z_rem = z - z_int;
+
+	if (x_rem + z_rem < 1.f)
+	{
+		float c = getGridHeight(x_int, z_int, model, width);
+
+		float a = getGridHeight(x_int + 1, z_int, model, width) - c;
+
+		float b = getGridHeight(x_int, z_int + 1, model, width) - c;
+
+		return a*x_rem + b*z_rem + c;
+	}
+
+	x_int += 1;
+	z_int += 1;
+
+	x_rem = -(1 - x_rem);
+	z_rem = -(1 - z_rem);
+
+	float c = getGridHeight(x_int, z_int, model, width);
+
+	float a = getGridHeight(x_int - 1, z_int, model, width) - c;
+
+	float b = getGridHeight(x_int, z_int - 1, model, width) - c;
+
+	return a*x_rem + b*z_rem + c;
+}
+
+Model* GenerateTerrain(const std::string& path, int* width)
+{
+	TGA textureFile(path.c_str());
+
+	int vertexCount = textureFile.getWidth() * textureFile.getHeight();
+	int triangleCount = (textureFile.getWidth() - 1) * (textureFile.getHeight() - 1) * 2;
+	int x, z;
+
+	*width = textureFile.getWidth();
+
+	GLfloat *vertexArray = (GLfloat*)malloc(sizeof(GLfloat) * 3 * vertexCount);
+	GLfloat *normalArray = (GLfloat*)malloc(sizeof(GLfloat) * 3 * vertexCount);
+	GLfloat *texCoordArray = (GLfloat*)malloc(sizeof(GLfloat) * 2 * vertexCount);
+	GLuint *indexArray = (GLuint*)malloc(sizeof(GLuint) * triangleCount * 3);
+
+	int bpp = textureFile.hasAlpha() ? 32 : 24;
+
+	printf("bpp %d\n", bpp);
+	for (x = 0; x < textureFile.getWidth(); x++)
+		for (z = 0; z < textureFile.getHeight(); z++)
+		{
+			// Vertex array. You need to scale this properly
+			vertexArray[(x + z * textureFile.getWidth()) * 3 + 0] = x / 1.0;
+			vertexArray[(x + z * textureFile.getWidth()) * 3 + 1] = textureFile.getPixels()[(x + z * textureFile.getWidth()) * (bpp / 8)] / 10.0;
+			vertexArray[(x + z * textureFile.getWidth()) * 3 + 2] = z / 1.0;
+
+			std::list<int> indexList = { 1,2,3,4,5,6 };
+
+			if (x == 0)
+			{
+				indexList.remove(1);
+				indexList.remove(5);
+				indexList.remove(6);
+			}
+			else if (x == textureFile.getWidth() - 1)
+			{
+				indexList.remove(2);
+				indexList.remove(3);
+				indexList.remove(4);
+			}
+
+			if (z == 0)
+			{
+				indexList.remove(1);
+				indexList.remove(2);
+				indexList.remove(3);
+			}
+			else if (z == textureFile.getHeight() - 1)
+			{
+				indexList.remove(4);
+				indexList.remove(5);
+				indexList.remove(6);
+			}
+
+			std::vector<glm::vec3> normals;
+
+			for (auto& it : indexList)
+			{
+				switch (it)
+				{
+				case 1:
+					normals.push_back(2.f*normalize(cross(getVector(x, z, x, z - 1, textureFile), getVector(x, z, x - 1, z, textureFile))));
+					break;
+				case 2:
+					normals.push_back(normalize(cross(getVector(x, z, x + 1, z - 1, textureFile), getVector(x, z, x, z - 1, textureFile))));
+					break;
+				case 3:
+					normals.push_back(normalize(cross(getVector(x, z, x + 1, z, textureFile), getVector(x, z, x + 1, z - 1, textureFile))));
+					break;
+				case 4:
+					normals.push_back(2.f*normalize(cross(getVector(x, z, x, z + 1, textureFile), getVector(x, z, x + 1, z, textureFile))));
+					break;
+				case 5:
+					normals.push_back(normalize(cross(getVector(x, z, x - 1, z, textureFile), getVector(x, z, x - 1, z + 1, textureFile))));
+					break;
+				case 6:
+					normals.push_back(normalize(cross(getVector(x, z, x - 1, z + 1, textureFile), getVector(x, z, x, z + 1, textureFile))));
+					break;
+				}
+			}
+
+			glm::vec3 normal{};
+
+			for (auto& it : normals)
+			{
+				normal += it;
+			}
+
+			normalize(normal);
+
+			// Normal vectors. You need to calculate these.
+			normalArray[(x + z * textureFile.getWidth()) * 3 + 0] = normal.x;
+			normalArray[(x + z * textureFile.getWidth()) * 3 + 1] = normal.y;
+			normalArray[(x + z * textureFile.getWidth()) * 3 + 2] = normal.z;
+			// Texture coordinates. You may want to scale them.
+			texCoordArray[(x + z * textureFile.getWidth()) * 2 + 0] = x; // (float)x / textureFile.getWidth();
+			texCoordArray[(x + z * textureFile.getWidth()) * 2 + 1] = z; // (float)z / textureFile.getHeight();
+		}
+	for (x = 0; x < textureFile.getWidth() - 1; x++)
+		for (z = 0; z < textureFile.getHeight() - 1; z++)
+		{
+			// Triangle 1
+			indexArray[(x + z * (textureFile.getWidth() - 1)) * 6 + 0] = x + z * textureFile.getWidth();
+			indexArray[(x + z * (textureFile.getWidth() - 1)) * 6 + 1] = x + (z + 1) * textureFile.getWidth();
+			indexArray[(x + z * (textureFile.getWidth() - 1)) * 6 + 2] = x + 1 + z * textureFile.getWidth();
+			// Triangle 2
+			indexArray[(x + z * (textureFile.getWidth() - 1)) * 6 + 3] = x + 1 + z * textureFile.getWidth();
+			indexArray[(x + z * (textureFile.getWidth() - 1)) * 6 + 4] = x + (z + 1) * textureFile.getWidth();
+			indexArray[(x + z * (textureFile.getWidth() - 1)) * 6 + 5] = x + 1 + (z + 1) * textureFile.getWidth();
+		}
+
+	// End of terrain generation
+
+	// Create Model and upload to GPU:
+
+	Model* model = LoadDataToModel(
+		vertexArray,
+		normalArray,
+		texCoordArray,
+		NULL,
+		indexArray,
+		vertexCount,
+		triangleCount * 3);
+
+	return model;
+}
+
+int labb4_world()
+{
+	try
+	{
+		//============================================================================
+		// Init
+		//============================================================================
+
+		Window window{ 1024, 768, "Test" };
+
+		//============================================================================
+		// Vertex buffer setup
+		//============================================================================
+
+		int terrainWidth;
+
+		Model* m3;
+		m3 = GenerateTerrain("fft-terrain.tga", &terrainWidth);
+
+		Model* sphere;
+		sphere = LoadModelPlus("groundsphere.obj");
+
+		//============================================================================
+		// Textures
+		//============================================================================
+
+		glActiveTexture(GL_TEXTURE0);
+
+		// TODO: Encapsulate for guarantee of memory release
+		TextureMap textures;
+		textures.emplace("Concrete", new Texture2D{ "conc.tga" });
+		textures.emplace("Flower", new Texture2D{ "maskros512.tga" });
+		textures.emplace("ground", new Texture2D{ "grass.tga" });
+
+		//============================================================================
+		// Shaders
+		//============================================================================
+
+		ShaderProgram shaderProgram{ "testvert.shader", "testfrag.shader" };
+		try
+		{
+			shaderProgram.compile();
+
+			shaderProgram.bindAttribLocation(0, "vertex_position");
+			shaderProgram.bindAttribLocation(1, "vertex_normal");
+			shaderProgram.bindAttribLocation(2, "vertex_texture_coordinates");
+
+			shaderProgram.link();
+
+			shaderProgram.use();
+		}
+		catch (const ShaderProgramException& ex)
+		{
+			std::cerr << ex.what() << std::endl;
+			glfwTerminate();
+			return -1;
+		}
+
+
+		glfwSetErrorCallback(GLFWError);
+
+		//============================================================================
+		// Final Setup
+		//============================================================================
+
+		glClearColor(0.f, 0.f, 0.f, 1.0f);
+
+		GLfloat time = (GLfloat)glfwGetTime();
+		GLfloat timeElapsed = 0.f;
+		GLuint frames = 0;
+
+		glfwSetInputMode(window.getHandle(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+		// Set render wireframe mode
+
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LESS);
+
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+
+		Camera camera{ glm::vec3(0.f,10.f,4.f) };
+
+		bool firstMouse = true;
+		GLfloat lastX{ 0.f };
+		GLfloat lastY{ 0.f };
+
+		bool forwardKeyPressed{ false };
+		bool backwardKeyPressed{ false };
+		bool leftKeyPressed{ false };
+		bool rightKeyPressed{ false };
+
+		while (!window.shouldClose())
+		{
+			// Clear screen and depth buffer
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			//============================================================================
+			// Dynamic Uniforms
+			//============================================================================
+
+			// Recalculate time and FPS counter
+
+			GLfloat oldTime = time;
+			time = (GLfloat)glfwGetTime();
+			GLfloat timeDelta = (time - oldTime);
+			timeElapsed += timeDelta;
+			++frames;
+
+			if (timeElapsed > 1.f)
+			{
+				timeElapsed -= 1.f;
+				std::string newTitle = std::to_string(frames) + std::string{ " FPS" };
+				window.setTitle(newTitle);
+				frames = 0;
+			}
+
+			// Handle window events
+			WindowEvent ev;
+			while (window.pollEvent(ev))
+			{
+				switch (ev.type)
+				{
+				case KEY_EVENT:
+					if (ev.key.key == GLFW_KEY_W)
+					{
+						if (ev.key.action == GLFW_PRESS)
+							forwardKeyPressed = true;
+						else if (ev.key.action == GLFW_RELEASE)
+							forwardKeyPressed = false;
+					}
+					if (ev.key.key == GLFW_KEY_S)
+					{
+						if (ev.key.action == GLFW_PRESS)
+							backwardKeyPressed = true;
+						else if (ev.key.action == GLFW_RELEASE)
+							backwardKeyPressed = false;
+					}
+					if (ev.key.key == GLFW_KEY_A)
+					{
+						if (ev.key.action == GLFW_PRESS)
+							leftKeyPressed = true;
+						else if (ev.key.action == GLFW_RELEASE)
+							leftKeyPressed = false;
+					}
+					if (ev.key.key == GLFW_KEY_D)
+					{
+						if (ev.key.action == GLFW_PRESS)
+							rightKeyPressed = true;
+						else  if (ev.key.action == GLFW_RELEASE)
+							rightKeyPressed = false;
+					}
+					if (ev.key.key == GLFW_KEY_F5)
+					{
+						if (ev.key.action == GLFW_PRESS)
+							recompileShaders(shaderProgram);
+					}
+					break;
+				case MOUSE_EVENT:
+				{
+					if (firstMouse)
+					{
+						lastX = ev.mouse.posx;
+						lastY = ev.mouse.posy;
+						firstMouse = false;
+					}
+
+					GLfloat xOffset = ev.mouse.posx - lastX;
+					GLfloat yOffset = lastY - ev.mouse.posy;
+
+					lastX = ev.mouse.posx;
+					lastY = ev.mouse.posy;
+
+					camera.processMouseMovement(xOffset, yOffset);
+				}
+				break;
+				default:
+					break;
+				}
+			}
+
+			if (forwardKeyPressed)
+				camera.processKeyboard(FORWARD, timeDelta);
+			if (backwardKeyPressed)
+				camera.processKeyboard(BACKWARD, timeDelta);
+			if (leftKeyPressed)
+				camera.processKeyboard(LEFT, timeDelta);
+			if (rightKeyPressed)
+				camera.processKeyboard(RIGHT, timeDelta);
+
+			glm::mat4 view = camera.getViewMatrix();
+			glm::mat4 projection = glm::perspective(radians(45.f), (GLfloat)window.getDimensions().x / (GLfloat)window.getDimensions().y, 0.1f, 100.f);
+
+			shaderProgram.uploadUniform("time", time);
+
+			shaderProgram.uploadUniform("view_pos", camera.getPosition());
+
+			// Light uniforms
+
+			glm::vec3 lightPos(4.f, 3.f, 3.f);
+			//glm::vec3 lightPos = camera.getPosition();
+			glm::vec3 lightColor = glm::vec3(1.f, 1.f, 1.f);
+			glm::vec3 diffuseColor = lightColor*0.7f; // Decrease the influence
+			glm::vec3 ambientColor = diffuseColor*0.3f; // Low influence
+
+			glUniform3f(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "light.position"), lightPos.x, lightPos.y, lightPos.z);
+			glUniform3f(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "light.ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
+			glUniform3f(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "light.diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
+			glUniform3f(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "light.specular"), 1.0f, 1.0f, 1.0f);
+
+			// Material Uniforms
+			glUniform3f(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "material.ambient"), 1.f, 1.f, 1.f);
+			glUniform3f(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "material.diffuse"), 1.f, 1.f, 1.f);
+			glUniform3f(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "material.specular"), 1.f, 1.f, 1.f);
+			glUniform1f(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "material.shininess"), 0.6f*128.f);
+
+			//glUniform1i(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "texUnit"), 0);
+
+
+			shaderProgram.uploadUniform("texUnit", 0);
+			shaderProgram.uploadUniform("texUnit2", 1);
+			textures.at("Concrete")->bind(0);
+
+			glm::vec2 bunny_pos{ 1.f*time,1.f };
+
+			glm::mat4 model = glm::translate(mat4{ 1.f }, glm::vec3(bunny_pos.x, getHeight(bunny_pos.x, bunny_pos.y, m3, terrainWidth), bunny_pos.y));
+			mat4 trans = projection*view*model;
+
+			shaderProgram.uploadUniform("transform", trans);
+			shaderProgram.uploadUniform("model", model);
+
+			DrawModel(sphere, shaderProgram.getShaderProgramHandle(), "vertex_position", "vertex_normal", "vertex_texture_coordinates");
+
+			textures.at("Concrete")->bind(0);
+			textures.at("ground")->bind(1);
+
+			model = glm::scale(mat4{ 1.f }, glm::vec3(1.f, 1.f, 1.f));
+			trans = projection*view*model;
+			shaderProgram.uploadUniform("transform", trans);
+			shaderProgram.uploadUniform("model", model);
+
+			DrawModel(m3, shaderProgram.getShaderProgramHandle(), "vertex_position", "vertex_normal", "vertex_texture_coordinates");
+
+			window.display();
+		}
+
+		DisposeModel(m3);
+
+		glfwTerminate();
+	}
+	catch (const std::exception& ex)
+	{
+		std::cerr << "[FATAL] Caught exception at main level:" << std::endl << ex.what() << std::endl;
+	}
+	catch (...)
+	{
+		std::cerr << "[FATAL] Caught unknown exception at main level" << std::endl;
+	}
+
+	return 0;
+}
+
+
 int main()
 {
-	return labb3_windmill();
+	return labb4_world();
 }
