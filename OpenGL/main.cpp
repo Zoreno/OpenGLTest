@@ -28,6 +28,8 @@
 #include <AL/alc.h>
 
 #include "WaveFile.h"
+#include "AudioSource.h"
+#include "AudioListener.h"
 
 using namespace glm;
 
@@ -1704,10 +1706,10 @@ int openAL_test()
 
 	std::cout << "Source Size: " << blip.getSize() << std::endl;
 	std::cout << "Source Freq: " << blip.getFrequency() << std::endl;
-	
+
 	std::cout << "Source format: ";
 
-	switch(blip.getFormat())
+	switch (blip.getFormat())
 	{
 	case AL_FORMAT_STEREO16:
 		std::cout << "AL_FORMAT_STEREO16";
@@ -1860,9 +1862,81 @@ int openAL_test()
 
 	// Device
 	// Context
-	// Source
-	// Buffer
-	// Listener
+	// Source - Done
+	// Buffer - Done
+	// Listener - Done
+}
+
+int openAL_test2()
+{
+	// Dummy read to flush error code.
+	alGetError();
+
+	// Open a device
+	ALCdevice* device;
+	ALCcontext* context;
+	ALenum error;
+
+	device = alcOpenDevice(NULL);
+
+	if (!device)
+	{
+		std::cout << "No Device" << std::endl;
+		return -1;
+	}
+
+	context = alcCreateContext(device, NULL);
+
+	alcMakeContextCurrent(context);
+
+	if (!context)
+	{
+		std::cout << "No Context" << std::endl;
+		return -1;
+	}
+
+
+	{
+		AudioSource source{ "Music.wav", true };
+		AudioListener listener{};
+
+		// Play Source
+
+		std::cout << "p - play" << std::endl << "s - stop" << std::endl << "r - rewind" << std::endl << "q - quit" << std::endl;
+		while (true)
+		{
+			char c;
+			std::cin >> c;
+			if (c == 'q')
+				break;
+			if (c == 'p')
+				source.play();
+			if (c == 's')
+				source.stop();
+			if (c == 'r')
+				source.rewind();
+		}
+
+	}
+
+	alcMakeContextCurrent(NULL);
+	alcDestroyContext(context);
+	alcCloseDevice(device);
+
+	error = alGetError();
+	if (error != AL_NO_ERROR)
+	{
+		std::cerr << '12' << alcGetString(device, error) << std::endl;
+		return -1;
+	}
+
+	return 0;
+
+	// Device
+	// Context
+	// Source - Done
+	// Buffer - Done
+	// Listener - Done
 }
 
 int WAV_test()
@@ -1959,14 +2033,15 @@ int print_WAV_content()
 {
 	WaveFile file{ "Jump3.wav" };
 
-	for(uint32_t i{0}; i < file.getSize(); ++i)
+	for (uint32_t i{ 0 }; i < file.getSize(); ++i)
 	{
 		int val = (int)((char*)file.getData())[i];
 		std::cout << std::hex << val << " ";
 	}
+	return 0;
 }
 
 int main()
 {
-	return openAL_test();
+	return labb3_windmill();
 }

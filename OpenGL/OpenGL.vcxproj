@@ -115,6 +115,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AudioBuffer.cpp" />
+    <ClCompile Include="AudioListener.cpp" />
+    <ClCompile Include="AudioSource.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Collada.cpp" />
     <ClCompile Include="ConfigFile.cpp" />
@@ -142,6 +145,10 @@
     <None Include="testvert.shader" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AudioBuffer.h" />
+    <ClInclude Include="AudioException.h" />
+    <ClInclude Include="AudioListener.h" />
+    <ClInclude Include="AudioSource.h" />
     <ClInclude Include="BMP.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Collada.h" />
