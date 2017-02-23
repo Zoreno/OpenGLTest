@@ -2,8 +2,8 @@
 
 #include "Utils.h"
 
-ShaderProgram::ShaderProgram(const std::string& vertexShaderPath, const std::string& fragmentShaderPath)
-	:vertexShaderPath(vertexShaderPath), fragmentShaderPath(fragmentShaderPath)
+ShaderProgram::ShaderProgram(const std::string& vertexShaderPath, const std::string& fragmentShaderPath, const std::string& geometryShaderPath)
+	:vertexShaderPath(vertexShaderPath), fragmentShaderPath(fragmentShaderPath), geometryShaderPath(geometryShaderPath)
 {}
 
 ShaderProgram::~ShaderProgram()
@@ -22,6 +22,11 @@ ShaderProgram::~ShaderProgram()
 	{
 		glDeleteShader(fragmentShaderHandle);
 	}
+
+	if (glIsShader(geometryShaderHandle))
+	{
+		glDeleteShader(geometryShaderHandle);
+	}
 }
 
 void ShaderProgram::compile()
@@ -34,6 +39,11 @@ void ShaderProgram::compile()
 	if (glIsShader(fragmentShaderHandle))
 	{
 		glDeleteShader(fragmentShaderHandle);
+	}
+
+	if (glIsShader(geometryShaderHandle))
+	{
+		glDeleteShader(geometryShaderHandle);
 	}
 
 	// Create a new vertex shader
@@ -71,6 +81,26 @@ void ShaderProgram::compile()
 		throw ShaderProgramException(errorMessage);
 	}
 
+	if (geometryShaderPath != "")
+	{
+		geometryShaderHandle = glCreateShader(GL_GEOMETRY_SHADER);
+
+		std::string geometryShaderString = getStringFromFile(geometryShaderPath);
+		const char* geometryShaderSource = geometryShaderString.c_str();
+
+		glShaderSource(geometryShaderHandle, 1, &geometryShaderSource, NULL);
+		glCompileShader(geometryShaderHandle);
+
+		glGetShaderiv(geometryShaderHandle, GL_COMPILE_STATUS, &success);
+		if (!success)
+		{
+			glGetShaderInfoLog(geometryShaderHandle, 512, NULL, infoLog);
+			std::string errorMessage;
+			errorMessage = "Error compiling geometry shader (" + geometryShaderPath + ")\n" + infoLog;
+			throw ShaderProgramException(errorMessage);
+		}
+	}
+
 	// If the prorgram is already existing, delete it before creating a new one.
 	if (glIsProgram(shaderProgramHandle))
 	{
@@ -81,6 +111,11 @@ void ShaderProgram::compile()
 
 	glAttachShader(shaderProgramHandle, vertexShaderHandle);
 	glAttachShader(shaderProgramHandle, fragmentShaderHandle);
+
+	if (glIsShader(geometryShaderHandle))
+	{
+		glAttachShader(shaderProgramHandle, geometryShaderHandle);
+	}
 
 }
 
@@ -162,8 +197,10 @@ void swap(ShaderProgram& lhs, ShaderProgram& rhs) noexcept
 	using std::swap;
 	swap(lhs.vertexShaderPath, rhs.vertexShaderPath);
 	swap(lhs.fragmentShaderPath, rhs.fragmentShaderPath);
+	swap(lhs.geometryShaderPath, rhs.geometryShaderPath);
 	swap(lhs.shaderProgramHandle, rhs.shaderProgramHandle);
 	swap(lhs.vertexShaderHandle, rhs.vertexShaderHandle);
 	swap(lhs.fragmentShaderHandle, rhs.fragmentShaderHandle);
+	swap(lhs.geometryShaderHandle, rhs.geometryShaderHandle);
 
 }

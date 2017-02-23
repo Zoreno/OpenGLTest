@@ -1266,22 +1266,22 @@ void ReloadModelData(Model *m)
 	// VBO for vertex data
 	glBindBuffer(GL_ARRAY_BUFFER, m->vb);
 	glBufferData(GL_ARRAY_BUFFER, m->numVertices * 3 * sizeof(GLfloat), m->vertexArray, GL_STATIC_DRAW);
-	//glVertexAttribPointer(glGetAttribLocation(program, vertexVariableName), 3, GL_FLOAT, GL_FALSE, 0, 0); 
-	//glEnableVertexAttribArray(glGetAttribLocation(program, vertexVariableName));
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0); 
+	glEnableVertexAttribArray(0);
 
 	// VBO for normal data
 	glBindBuffer(GL_ARRAY_BUFFER, m->nb);
 	glBufferData(GL_ARRAY_BUFFER, m->numVertices * 3 * sizeof(GLfloat), m->normalArray, GL_STATIC_DRAW);
-	//glVertexAttribPointer(glGetAttribLocation(program, normalVariableName), 3, GL_FLOAT, GL_FALSE, 0, 0);
-	//glEnableVertexAttribArray(glGetAttribLocation(program, normalVariableName));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(1);
 
 	// VBO for texture coordinate data NEW for 5b
 	if (m->texCoordArray != NULL)
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, m->tb);
 		glBufferData(GL_ARRAY_BUFFER, m->numVertices * 2 * sizeof(GLfloat), m->texCoordArray, GL_STATIC_DRAW);
-		//glVertexAttribPointer(glGetAttribLocation(program, texCoordVariableName), 2, GL_FLOAT, GL_FALSE, 0, 0);
-		//glEnableVertexAttribArray(glGetAttribLocation(program, texCoordVariableName));
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(2);
 	}
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m->ib);

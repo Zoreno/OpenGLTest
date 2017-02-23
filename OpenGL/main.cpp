@@ -2183,7 +2183,7 @@ Model* GenerateTerrain(const std::string& path, int* width)
 				normal += it;
 			}
 
-			normalize(normal);
+			normal = normalize(normal);
 
 			// Normal vectors. You need to calculate these.
 			normalArray[(x + z * textureFile.getWidth()) * 3 + 0] = normal.x;
@@ -2272,6 +2272,24 @@ int labb4_world()
 			shaderProgram.link();
 
 			shaderProgram.use();
+		}
+		catch (const ShaderProgramException& ex)
+		{
+			std::cerr << ex.what() << std::endl;
+			glfwTerminate();
+			return -1;
+		}
+
+		ShaderProgram normalShaderProgram{ "normalvert.shader", "normalFrag.shader", "normalgeom.shader" };
+		try
+		{
+			normalShaderProgram.compile();
+
+			normalShaderProgram.bindAttribLocation(0, "vertex_position");
+			normalShaderProgram.bindAttribLocation(1, "vertex_normal");
+
+			normalShaderProgram.link();
+			normalShaderProgram.use();
 		}
 		catch (const ShaderProgramException& ex)
 		{
@@ -2414,6 +2432,8 @@ int labb4_world()
 			if (rightKeyPressed)
 				camera.processKeyboard(RIGHT, timeDelta);
 
+			shaderProgram.use();
+
 			glm::mat4 view = camera.getViewMatrix();
 			glm::mat4 projection = glm::perspective(radians(45.f), (GLfloat)window.getDimensions().x / (GLfloat)window.getDimensions().y, 0.1f, 100.f);
 
@@ -2442,12 +2462,11 @@ int labb4_world()
 
 			//glUniform1i(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "texUnit"), 0);
 
-
 			shaderProgram.uploadUniform("texUnit", 0);
 			shaderProgram.uploadUniform("texUnit2", 1);
 			textures.at("Concrete")->bind(0);
 
-			glm::vec2 bunny_pos{ 1.f*time,1.f };
+			glm::vec2 bunny_pos{ 1.f,1.f };
 
 			glm::mat4 model = glm::translate(mat4{ 1.f }, glm::vec3(bunny_pos.x, getHeight(bunny_pos.x, bunny_pos.y, m3, terrainWidth), bunny_pos.y));
 			mat4 trans = projection*view*model;
@@ -2466,6 +2485,14 @@ int labb4_world()
 			shaderProgram.uploadUniform("model", model);
 
 			DrawModel(m3, shaderProgram.getShaderProgramHandle(), "vertex_position", "vertex_normal", "vertex_texture_coordinates");
+
+			normalShaderProgram.use();
+			normalShaderProgram.uploadUniform("transform", trans);
+			normalShaderProgram.uploadUniform("model", model);
+
+			glBindBuffer(GL_ARRAY_BUFFER, m3->nb);
+
+			glDrawArrays(GL_POINTS, 0, m3->numVertices);
 
 			window.display();
 		}

@@ -139,6 +139,9 @@
     <None Include="ConfigFile.inl" />
     <None Include="labb1-1.frag" />
     <None Include="labb1-1.vert" />
+    <None Include="normalfrag.shader" />
+    <None Include="normalgeom.shader" />
+    <None Include="normalvert.shader" />
     <None Include="skyboxFragment.shader" />
     <None Include="skyboxVertex.shader" />
     <None Include="terrain.frag" />

@@ -42,8 +42,9 @@ public:
 	 * @brief Constructor for the shader program.
 	 * @param vertexShaderPath Path to the vertex shader source.
 	 * @param fragmentShaderPath Path to the fragment shader source.
+	 * @param geometryShaderPath Path to the geometry shader source code. If equal to "", the geometry shader is not included.
 	 */
-	ShaderProgram(const std::string& vertexShaderPath, const std::string& fragmentShaderPath);
+	ShaderProgram(const std::string& vertexShaderPath, const std::string& fragmentShaderPath, const std::string& geometryShaderPath = "");
 
 	/**
 	 * @brief Destructor.
@@ -150,6 +151,11 @@ private:
 	std::string fragmentShaderPath;
 
 	/**
+	* @brief Path to the geometry shader source.
+	*/
+	std::string geometryShaderPath;
+
+	/**
 	 * @brief OpenGL shader program handle.
 	 */
 	GLuint shaderProgramHandle;
@@ -163,4 +169,9 @@ private:
 	 * @brief OpenGL fragment shader handle.
 	 */
 	GLuint fragmentShaderHandle;
+
+	/**
+	* @brief OpenGL geometry shader handle.
+	*/
+	GLuint geometryShaderHandle;
 };

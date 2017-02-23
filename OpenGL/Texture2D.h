@@ -11,13 +11,38 @@
 
 #include <map>
 
+enum TEXTURE2DWRAP
+{
+	REPEAT,
+	MIRRORED_REPEAT,
+	CLAMP_TO_EDGE,
+	CLAMP_TO_BORDER
+};
+
+enum TEXTURE2DFILTERING
+{
+	NEAREST,
+	LINEAR,
+	NEAREST_MIPMAP_NEAREST,
+	LINEAR_MIPMAP_NEAREST,
+	NEAREST_MIPMAP_LINEAR,
+	LINEAR_MIPMAP_LINEAR
+};
+
 class Texture2D
 {
 public:
 
 	Texture2D();
 
-	explicit Texture2D(const char* filePath);
+	explicit Texture2D(
+		const char* filePath,
+		TEXTURE2DWRAP sWrap = REPEAT,
+		TEXTURE2DWRAP tWrap = REPEAT,
+		TEXTURE2DFILTERING magFilter = LINEAR,
+		TEXTURE2DFILTERING minFilter = LINEAR_MIPMAP_LINEAR
+	);
+
 	~Texture2D();
 
 	Texture2D(const Texture2D&) = delete;
@@ -36,7 +61,8 @@ public:
 	// Bind texture to given unit
 	void bind(GLuint texUnit) const;
 private:
-	TextureFile* file;
+	uint32_t width;
+	uint32_t height;
 
 	GLuint textureID;
 

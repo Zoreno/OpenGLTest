@@ -143,6 +143,15 @@
     <None Include="terrain.frag">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="normalvert.shader">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="normalgeom.shader">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="normalfrag.shader">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Window.h">

@@ -63,7 +63,7 @@ const glm::vec3 UP = glm::vec3(0.f, 1.f, 0.f);
 /**
  * @brief Default camera yaw value.
  */
-const GLfloat YAW = -90.f;
+const GLfloat YAW = 0.f;
 
 /**
  * @brief Default camera pitch value.
