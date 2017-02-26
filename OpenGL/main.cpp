@@ -32,6 +32,7 @@
 #include "AudioListener.h"
 
 #include <list>
+#include <thread>
 
 using namespace glm;
 
@@ -543,42 +544,42 @@ int labb1_bunny()
 			{
 				switch (ev.type)
 				{
-				case KEY_EVENT:
+				case EventType::KEY_EVENT:
 					if (ev.key.key == GLFW_KEY_W)
 					{
-						if (ev.key.action == GLFW_PRESS)
+						if (ev.key.action == Action::PRESS)
 							forwardKeyPressed = true;
-						else if (ev.key.action == GLFW_RELEASE)
+						else if (ev.key.action == Action::RELEASE)
 							forwardKeyPressed = false;
 					}
 					if (ev.key.key == GLFW_KEY_S)
 					{
-						if (ev.key.action == GLFW_PRESS)
+						if (ev.key.action == Action::PRESS)
 							backwardKeyPressed = true;
-						else if (ev.key.action == GLFW_RELEASE)
+						else if (ev.key.action == Action::RELEASE)
 							backwardKeyPressed = false;
 					}
 					if (ev.key.key == GLFW_KEY_A)
 					{
-						if (ev.key.action == GLFW_PRESS)
+						if (ev.key.action == Action::PRESS)
 							leftKeyPressed = true;
-						else if (ev.key.action == GLFW_RELEASE)
+						else if (ev.key.action == Action::RELEASE)
 							leftKeyPressed = false;
 					}
 					if (ev.key.key == GLFW_KEY_D)
 					{
-						if (ev.key.action == GLFW_PRESS)
+						if (ev.key.action == Action::PRESS)
 							rightKeyPressed = true;
-						else  if (ev.key.action == GLFW_RELEASE)
+						else  if (ev.key.action == Action::RELEASE)
 							rightKeyPressed = false;
 					}
 					if (ev.key.key == GLFW_KEY_F5)
 					{
-						if (ev.key.action == GLFW_PRESS)
+						if (ev.key.action == Action::PRESS)
 							recompileShaders(shaderProgram);
 					}
 					break;
-				case MOUSE_EVENT:
+				case EventType::MOUSE_MOVED_EVENT:
 				{
 					if (firstMouse)
 					{
@@ -809,42 +810,42 @@ int labb2_bunny()
 			{
 				switch (ev.type)
 				{
-				case KEY_EVENT:
+				case EventType::KEY_EVENT:
 					if (ev.key.key == GLFW_KEY_W)
 					{
-						if (ev.key.action == GLFW_PRESS)
+						if (ev.key.action == Action::PRESS)
 							forwardKeyPressed = true;
-						else if (ev.key.action == GLFW_RELEASE)
+						else if (ev.key.action == Action::RELEASE)
 							forwardKeyPressed = false;
 					}
 					if (ev.key.key == GLFW_KEY_S)
 					{
-						if (ev.key.action == GLFW_PRESS)
+						if (ev.key.action == Action::PRESS)
 							backwardKeyPressed = true;
-						else if (ev.key.action == GLFW_RELEASE)
+						else if (ev.key.action == Action::RELEASE)
 							backwardKeyPressed = false;
 					}
 					if (ev.key.key == GLFW_KEY_A)
 					{
-						if (ev.key.action == GLFW_PRESS)
+						if (ev.key.action == Action::PRESS)
 							leftKeyPressed = true;
-						else if (ev.key.action == GLFW_RELEASE)
+						else if (ev.key.action == Action::RELEASE)
 							leftKeyPressed = false;
 					}
 					if (ev.key.key == GLFW_KEY_D)
 					{
-						if (ev.key.action == GLFW_PRESS)
+						if (ev.key.action == Action::PRESS)
 							rightKeyPressed = true;
-						else  if (ev.key.action == GLFW_RELEASE)
+						else  if (ev.key.action == Action::RELEASE)
 							rightKeyPressed = false;
 					}
 					if (ev.key.key == GLFW_KEY_F5)
 					{
-						if (ev.key.action == GLFW_PRESS)
+						if (ev.key.action == Action::PRESS)
 							recompileShaders(shaderProgram);
 					}
 					break;
-				case MOUSE_EVENT:
+				case EventType::MOUSE_MOVED_EVENT:
 				{
 					if (firstMouse)
 					{
@@ -1106,62 +1107,62 @@ int labb3_windmill()
 			{
 				switch (ev.type)
 				{
-				case KEY_EVENT:
+				case EventType::KEY_EVENT:
 					if (ev.key.key == GLFW_KEY_W)
 					{
-						if (ev.key.action == GLFW_PRESS)
+						if (ev.key.action == Action::PRESS)
 							forwardKeyPressed = true;
-						else if (ev.key.action == GLFW_RELEASE)
+						else if (ev.key.action == Action::RELEASE)
 							forwardKeyPressed = false;
 					}
 					if (ev.key.key == GLFW_KEY_S)
 					{
-						if (ev.key.action == GLFW_PRESS)
+						if (ev.key.action == Action::PRESS)
 							backwardKeyPressed = true;
-						else if (ev.key.action == GLFW_RELEASE)
+						else if (ev.key.action == Action::RELEASE)
 							backwardKeyPressed = false;
 					}
 					if (ev.key.key == GLFW_KEY_A)
 					{
-						if (ev.key.action == GLFW_PRESS)
+						if (ev.key.action == Action::PRESS)
 							leftKeyPressed = true;
-						else if (ev.key.action == GLFW_RELEASE)
+						else if (ev.key.action == Action::RELEASE)
 							leftKeyPressed = false;
 					}
 					if (ev.key.key == GLFW_KEY_D)
 					{
-						if (ev.key.action == GLFW_PRESS)
+						if (ev.key.action == Action::PRESS)
 							rightKeyPressed = true;
-						else  if (ev.key.action == GLFW_RELEASE)
+						else  if (ev.key.action == Action::RELEASE)
 							rightKeyPressed = false;
 					}
 					if (ev.key.key == GLFW_KEY_SPACE)
 					{
-						if (ev.key.action == GLFW_PRESS)
+						if (ev.key.action == Action::PRESS)
 							spacePressed = true;
-						else  if (ev.key.action == GLFW_RELEASE)
+						else  if (ev.key.action == Action::RELEASE)
 							spacePressed = false;
 					}
 					if (ev.key.key == GLFW_KEY_LEFT_SHIFT)
 					{
-						if (ev.key.action == GLFW_PRESS)
+						if (ev.key.action == Action::PRESS)
 							shiftPressed = true;
-						else  if (ev.key.action == GLFW_RELEASE)
+						else  if (ev.key.action == Action::RELEASE)
 							shiftPressed = false;
 					}
 					if (ev.key.key == GLFW_KEY_F5)
 					{
-						if (ev.key.action == GLFW_PRESS)
+						if (ev.key.action == Action::PRESS)
 							recompileShaders(shaderProgram);
 					}
 
 					if (ev.key.key == GLFW_KEY_F6)
 					{
-						if (ev.key.action == GLFW_PRESS)
+						if (ev.key.action == Action::PRESS)
 							reloadConfig(positions);
 					}
 					break;
-				case MOUSE_EVENT:
+				case EventType::MOUSE_MOVED_EVENT:
 				{
 					if (firstMouse)
 					{
@@ -1464,42 +1465,42 @@ int labb3_world()
 			{
 				switch (ev.type)
 				{
-				case KEY_EVENT:
+				case EventType::KEY_EVENT:
 					if (ev.key.key == GLFW_KEY_W)
 					{
-						if (ev.key.action == GLFW_PRESS)
+						if (ev.key.action == Action::PRESS)
 							forwardKeyPressed = true;
-						else if (ev.key.action == GLFW_RELEASE)
+						else if (ev.key.action == Action::RELEASE)
 							forwardKeyPressed = false;
 					}
 					if (ev.key.key == GLFW_KEY_S)
 					{
-						if (ev.key.action == GLFW_PRESS)
+						if (ev.key.action == Action::PRESS)
 							backwardKeyPressed = true;
-						else if (ev.key.action == GLFW_RELEASE)
+						else if (ev.key.action == Action::RELEASE)
 							backwardKeyPressed = false;
 					}
 					if (ev.key.key == GLFW_KEY_A)
 					{
-						if (ev.key.action == GLFW_PRESS)
+						if (ev.key.action == Action::PRESS)
 							leftKeyPressed = true;
-						else if (ev.key.action == GLFW_RELEASE)
+						else if (ev.key.action == Action::RELEASE)
 							leftKeyPressed = false;
 					}
 					if (ev.key.key == GLFW_KEY_D)
 					{
-						if (ev.key.action == GLFW_PRESS)
+						if (ev.key.action == Action::PRESS)
 							rightKeyPressed = true;
-						else  if (ev.key.action == GLFW_RELEASE)
+						else  if (ev.key.action == Action::RELEASE)
 							rightKeyPressed = false;
 					}
 					if (ev.key.key == GLFW_KEY_F5)
 					{
-						if (ev.key.action == GLFW_PRESS)
+						if (ev.key.action == Action::PRESS)
 							recompileShaders(shaderProgram);
 					}
 					break;
-				case MOUSE_EVENT:
+				case EventType::MOUSE_MOVED_EVENT:
 				{
 					if (firstMouse)
 					{
@@ -2088,9 +2089,9 @@ float getHeight(float x, float z, Model* model, int width)
 
 	float c = getGridHeight(x_int, z_int, model, width);
 
-	float a = getGridHeight(x_int - 1, z_int, model, width) - c;
+	float a = c - getGridHeight(x_int - 1, z_int, model, width);
 
-	float b = getGridHeight(x_int, z_int - 1, model, width) - c;
+	float b = c - getGridHeight(x_int, z_int - 1, model, width);
 
 	return a*x_rem + b*z_rem + c;
 }
@@ -2230,7 +2231,7 @@ int labb4_world()
 		// Init
 		//============================================================================
 
-		Window window{ 1024, 768, "Test" };
+		Window window{ 1068, 720, "Test" };
 
 		//============================================================================
 		// Vertex buffer setup
@@ -2244,6 +2245,9 @@ int labb4_world()
 		Model* sphere;
 		sphere = LoadModelPlus("groundsphere.obj");
 
+		Model* skybox;
+		skybox = LoadModelPlus("skybox.obj");
+
 		//============================================================================
 		// Textures
 		//============================================================================
@@ -2255,6 +2259,7 @@ int labb4_world()
 		textures.emplace("Concrete", new Texture2D{ "conc.tga" });
 		textures.emplace("Flower", new Texture2D{ "maskros512.tga" });
 		textures.emplace("ground", new Texture2D{ "grass.tga" });
+		textures.emplace("skybox", new Texture2D("SkyBox512.tga", CLAMP_TO_EDGE, CLAMP_TO_EDGE));
 
 		//============================================================================
 		// Shaders
@@ -2298,8 +2303,63 @@ int labb4_world()
 			return -1;
 		}
 
+		ShaderProgram skyboxShaderProgram("skyboxVertex.shader", "skyboxFragment.shader");
+		try
+		{
+			skyboxShaderProgram.use();
+			skyboxShaderProgram.compile();
+
+			skyboxShaderProgram.bindAttribLocation(0, "vertex_position");
+			skyboxShaderProgram.bindAttribLocation(1, "vertex_normal");
+			skyboxShaderProgram.bindAttribLocation(2, "vertex_texture_coordinates");
+
+			skyboxShaderProgram.link();
+		}
+		catch (const ShaderProgramException& ex)
+		{
+			std::cerr << ex.what() << std::endl;
+			glfwTerminate();
+			return -1;
+		}
+
 
 		glfwSetErrorCallback(GLFWError);
+
+		//============================================================================
+		// Sound Setup
+		//============================================================================
+
+		// Dummy read to flush error code.
+		alGetError();
+
+		// Open a device
+		ALCdevice* device;
+		ALCcontext* context;
+		ALenum error;
+
+		device = alcOpenDevice(NULL);
+
+		if (!device)
+		{
+			std::cout << "No Device" << std::endl;
+			return -1;
+		}
+
+		context = alcCreateContext(device, NULL);
+
+		alcMakeContextCurrent(context);
+
+		if (!context)
+		{
+			std::cout << "No Context" << std::endl;
+			return -1;
+		}
+
+		AudioSource musicSource{ "Music.wav", true };
+		AudioSource jumpSource{ "Jump3.wav" };
+		AudioListener listener{};
+
+		musicSource.play();
 
 		//============================================================================
 		// Final Setup
@@ -2312,10 +2372,6 @@ int labb4_world()
 		GLuint frames = 0;
 
 		glfwSetInputMode(window.getHandle(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-		// Set render wireframe mode
-
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
@@ -2334,10 +2390,31 @@ int labb4_world()
 		bool leftKeyPressed{ false };
 		bool rightKeyPressed{ false };
 
+		bool upArrowPressed{ false };
+		bool downArrowPressed{ false };
+		bool leftArrowPressed{ false };
+		bool rightArrowPressed{ false };
+
+		bool drawNormals{ false };
+		bool wireFrame{ false };
+
+		glm::vec2 sphere_pos{ 1.f,1.f };
+
+		float sphere_speed{ 1.f };
+
 		while (!window.shouldClose())
 		{
 			// Clear screen and depth buffer
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			if(wireFrame)
+			{
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			}
+			else
+			{
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			}
 
 			//============================================================================
 			// Dynamic Uniforms
@@ -2365,42 +2442,87 @@ int labb4_world()
 			{
 				switch (ev.type)
 				{
-				case KEY_EVENT:
+				case EventType::KEY_EVENT:
 					if (ev.key.key == GLFW_KEY_W)
 					{
-						if (ev.key.action == GLFW_PRESS)
+						if (ev.key.action == Action::PRESS)
 							forwardKeyPressed = true;
-						else if (ev.key.action == GLFW_RELEASE)
+						else if (ev.key.action == Action::RELEASE)
 							forwardKeyPressed = false;
 					}
 					if (ev.key.key == GLFW_KEY_S)
 					{
-						if (ev.key.action == GLFW_PRESS)
+						if (ev.key.action == Action::PRESS)
 							backwardKeyPressed = true;
-						else if (ev.key.action == GLFW_RELEASE)
+						else if (ev.key.action == Action::RELEASE)
 							backwardKeyPressed = false;
 					}
 					if (ev.key.key == GLFW_KEY_A)
 					{
-						if (ev.key.action == GLFW_PRESS)
+						if (ev.key.action == Action::PRESS)
 							leftKeyPressed = true;
-						else if (ev.key.action == GLFW_RELEASE)
+						else if (ev.key.action == Action::RELEASE)
 							leftKeyPressed = false;
 					}
 					if (ev.key.key == GLFW_KEY_D)
 					{
-						if (ev.key.action == GLFW_PRESS)
+						if (ev.key.action == Action::PRESS)
 							rightKeyPressed = true;
-						else  if (ev.key.action == GLFW_RELEASE)
+						else  if (ev.key.action == Action::RELEASE)
 							rightKeyPressed = false;
 					}
 					if (ev.key.key == GLFW_KEY_F5)
 					{
-						if (ev.key.action == GLFW_PRESS)
+						if (ev.key.action == Action::PRESS)
 							recompileShaders(shaderProgram);
 					}
+					if (ev.key.key == GLFW_KEY_F8)
+					{
+						if (ev.key.action == Action::PRESS)
+							drawNormals = !drawNormals;
+					}
+
+					if (ev.key.key == GLFW_KEY_F7)
+					{
+						if (ev.key.action == Action::PRESS)
+							wireFrame = !wireFrame;
+					}
+
+					if (ev.key.key == GLFW_KEY_UP)
+					{
+						if (ev.key.action == Action::PRESS)
+							upArrowPressed = true;
+						else if (ev.key.action == Action::RELEASE)
+							upArrowPressed = false;
+					}
+					if (ev.key.key == GLFW_KEY_DOWN)
+					{
+						if (ev.key.action == Action::PRESS)
+							downArrowPressed = true;
+						else if (ev.key.action == Action::RELEASE)
+							downArrowPressed = false;
+					}
+					if (ev.key.key == GLFW_KEY_LEFT)
+					{
+						if (ev.key.action == Action::PRESS)
+							leftArrowPressed = true;
+						else if (ev.key.action == Action::RELEASE)
+							leftArrowPressed = false;
+					}
+					if (ev.key.key == GLFW_KEY_RIGHT)
+					{
+						if (ev.key.action == Action::PRESS)
+							rightArrowPressed = true;
+						else if (ev.key.action == Action::RELEASE)
+							rightArrowPressed = false;
+					}
+					if (ev.key.key == GLFW_KEY_SPACE)
+					{
+						if (ev.key.action == Action::PRESS)
+							jumpSource.play();
+					}
 					break;
-				case MOUSE_EVENT:
+				case EventType::MOUSE_MOVED_EVENT:
 				{
 					if (firstMouse)
 					{
@@ -2414,8 +2536,20 @@ int labb4_world()
 
 					lastX = ev.mouse.posx;
 					lastY = ev.mouse.posy;
+					if(window.hasFocus())
+						camera.processMouseMovement(xOffset, yOffset);
+				}
+				break;
 
-					camera.processMouseMovement(xOffset, yOffset);
+				case EventType::GAINED_FOCUS:
+				{
+					glfwSetInputMode(window.getHandle(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+				}
+				break;
+				case EventType::LOST_FOCUS:
+				{
+					glfwSetInputMode(window.getHandle(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+
 				}
 				break;
 				default:
@@ -2423,19 +2557,41 @@ int labb4_world()
 				}
 			}
 
-			if (forwardKeyPressed)
-				camera.processKeyboard(FORWARD, timeDelta);
-			if (backwardKeyPressed)
-				camera.processKeyboard(BACKWARD, timeDelta);
-			if (leftKeyPressed)
-				camera.processKeyboard(LEFT, timeDelta);
-			if (rightKeyPressed)
-				camera.processKeyboard(RIGHT, timeDelta);
+			if (window.hasFocus())
+			{
+				if (forwardKeyPressed)
+					camera.processKeyboard(FORWARD, timeDelta);
+				if (backwardKeyPressed)
+					camera.processKeyboard(BACKWARD, timeDelta);
+				if (leftKeyPressed)
+					camera.processKeyboard(LEFT, timeDelta);
+				if (rightKeyPressed)
+					camera.processKeyboard(RIGHT, timeDelta);
+
+				if (upArrowPressed)
+					sphere_pos += glm::vec2{ sphere_speed*timeDelta, 0.f };
+				if (downArrowPressed)
+					sphere_pos -= glm::vec2{ sphere_speed*timeDelta, 0.f };
+				if (leftArrowPressed)
+					sphere_pos -= glm::vec2{ 0.f, sphere_speed*timeDelta };
+				if (rightArrowPressed)
+					sphere_pos += glm::vec2{ 0.f, sphere_speed*timeDelta };
+
+			}
+
+			jumpSource.setPosition(glm::vec3(sphere_pos.x, getHeight(sphere_pos.x, sphere_pos.y, m3, terrainWidth), sphere_pos.y));
+			musicSource.setPosition(camera.getPosition());
+			listener.setPosition(camera.getPosition());
+			listener.setOrientationAt(camera.getFrontVector());
+			listener.setOrientationUp(camera.getUpVector());
+
+			// Sätt till 1.f för att aktivera ljud
+			listener.setGain(0.f);
 
 			shaderProgram.use();
 
 			glm::mat4 view = camera.getViewMatrix();
-			glm::mat4 projection = glm::perspective(radians(45.f), (GLfloat)window.getDimensions().x / (GLfloat)window.getDimensions().y, 0.1f, 100.f);
+			glm::mat4 projection = glm::perspective(radians(45.f), (GLfloat)window.getDimensions().x / (GLfloat)window.getDimensions().y, 0.1f, 1000.f);
 
 			shaderProgram.uploadUniform("time", time);
 
@@ -2443,13 +2599,18 @@ int labb4_world()
 
 			// Light uniforms
 
-			glm::vec3 lightPos(4.f, 3.f, 3.f);
+			glm::vec3 lightPos(100.f, 100.f, 100.f);
 			//glm::vec3 lightPos = camera.getPosition();
 			glm::vec3 lightColor = glm::vec3(1.f, 1.f, 1.f);
 			glm::vec3 diffuseColor = lightColor*0.7f; // Decrease the influence
 			glm::vec3 ambientColor = diffuseColor*0.3f; // Low influence
 
 			glUniform3f(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "light.position"), lightPos.x, lightPos.y, lightPos.z);
+
+			glUniform1f(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "light.constant"), 1.f);
+			glUniform1f(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "light.linear"), 0.f);
+			glUniform1f(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "light.quadratic"), 0.f);
+
 			glUniform3f(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "light.ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
 			glUniform3f(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "light.diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
 			glUniform3f(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "light.specular"), 1.0f, 1.0f, 1.0f);
@@ -2460,21 +2621,53 @@ int labb4_world()
 			glUniform3f(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "material.specular"), 1.f, 1.f, 1.f);
 			glUniform1f(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "material.shininess"), 0.6f*128.f);
 
-			//glUniform1i(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "texUnit"), 0);
+			skyboxShaderProgram.use();
+			glm::mat4 skyboxModel = glm::translate(glm::mat4{ 1.f }, camera.getPosition());
+
+			glm::mat4 skyboxView = camera.getViewMatrix();
+
+			skyboxView[0][3] = 0;
+			skyboxView[1][3] = 0;
+			skyboxView[2][3] = 0;
+
+			mat4 skyboxTransform = projection*skyboxView*skyboxModel;
+			skyboxShaderProgram.uploadUniform("transform", skyboxTransform);
+			skyboxShaderProgram.uploadUniform("model", skyboxModel);
+			skyboxShaderProgram.uploadUniform("texUnit", 0);
+
+			textures.at("skybox")->bind(0);
+
+			glDisable(GL_DEPTH_TEST);
+
+			glCullFace(GL_FRONT);
+
+			DrawModel(skybox, skyboxShaderProgram.getShaderProgramHandle(), "vertex_position", "vertex_normal", "vertex_texture_coordinates");
+
+			glCullFace(GL_BACK);
+
+			glEnable(GL_DEPTH_TEST);
+
+			shaderProgram.use();
 
 			shaderProgram.uploadUniform("texUnit", 0);
 			shaderProgram.uploadUniform("texUnit2", 1);
 			textures.at("Concrete")->bind(0);
 
-			glm::vec2 bunny_pos{ 1.f,1.f };
-
-			glm::mat4 model = glm::translate(mat4{ 1.f }, glm::vec3(bunny_pos.x, getHeight(bunny_pos.x, bunny_pos.y, m3, terrainWidth), bunny_pos.y));
+			glm::mat4 model = glm::translate(mat4{ 1.f }, glm::vec3(sphere_pos.x, getHeight(sphere_pos.x, sphere_pos.y, m3, terrainWidth), sphere_pos.y));
 			mat4 trans = projection*view*model;
 
 			shaderProgram.uploadUniform("transform", trans);
 			shaderProgram.uploadUniform("model", model);
 
 			DrawModel(sphere, shaderProgram.getShaderProgramHandle(), "vertex_position", "vertex_normal", "vertex_texture_coordinates");
+
+			if (drawNormals)
+			{
+				normalShaderProgram.use();
+				normalShaderProgram.uploadUniform("transform", trans);
+
+				glDrawArrays(GL_POINTS, 0, sphere->numVertices);
+			}
 
 			textures.at("Concrete")->bind(0);
 			textures.at("ground")->bind(1);
@@ -2486,20 +2679,35 @@ int labb4_world()
 
 			DrawModel(m3, shaderProgram.getShaderProgramHandle(), "vertex_position", "vertex_normal", "vertex_texture_coordinates");
 
-			normalShaderProgram.use();
-			normalShaderProgram.uploadUniform("transform", trans);
-			normalShaderProgram.uploadUniform("model", model);
+			if (drawNormals)
+			{
+				normalShaderProgram.use();
+				normalShaderProgram.uploadUniform("transform", trans);
 
-			glBindBuffer(GL_ARRAY_BUFFER, m3->nb);
-
-			glDrawArrays(GL_POINTS, 0, m3->numVertices);
+				glDrawArrays(GL_POINTS, 0, m3->numVertices);
+			}
 
 			window.display();
 		}
 
+		musicSource.stop();
+		jumpSource.stop();
+
 		DisposeModel(m3);
+		DisposeModel(sphere);
 
 		glfwTerminate();
+
+		alcMakeContextCurrent(NULL);
+		alcDestroyContext(context);
+		alcCloseDevice(device);
+
+		error = alGetError();
+		if (error != AL_NO_ERROR)
+		{
+			std::cerr << '12' << alcGetString(device, error) << std::endl;
+			return -1;
+		}
 	}
 	catch (const std::exception& ex)
 	{
@@ -2512,7 +2720,6 @@ int labb4_world()
 
 	return 0;
 }
-
 
 int main()
 {

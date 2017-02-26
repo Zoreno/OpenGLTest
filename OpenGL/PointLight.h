@@ -23,6 +23,10 @@ private:
 	// Position info
 	glm::vec3 position;
 
+	float constant;
+	float linear;
+	float quadratic;
+
 	// Color info
 	glm::vec3 ambient;
 	glm::vec3 diffuse;

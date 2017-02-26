@@ -21,7 +21,7 @@ void AudioListener::setGain(ALfloat gain)
 
 	ALenum error;
 	alGetError();
-	alListenerf(AL_PITCH, gain);
+	alListenerf(AL_GAIN, gain);
 	error = alGetError();
 	if (error != AL_NO_ERROR)
 	{

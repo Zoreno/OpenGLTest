@@ -5,6 +5,8 @@ layout(line_strip, max_vertices = 2) out;
 
 uniform mat4 transform;
 
+uniform float length = 0.5;
+
 in vec3 vert_normal[];
 
 out vec3 vertex_color;
@@ -20,7 +22,7 @@ void main()
 	gl_Position = transform*v0;
 	EmitVertex();
 
-	vec4 v1 = v0 + vec4(normal, 0.0);
+	vec4 v1 = v0 + vec4(normal * length, 0.0);
 	gl_Position = transform*v1;
 	EmitVertex();
 
