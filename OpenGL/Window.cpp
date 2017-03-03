@@ -263,6 +263,11 @@ GLuint Window::getHeight() const noexcept
 	return height;
 }
 
+GLfloat Window::getAspectRatio() const noexcept
+{
+	return static_cast<GLfloat>(width) / static_cast<GLfloat>(height);
+}
+
 GLFWwindow* Window::getHandle() const noexcept
 {
 	return windowHandle;

@@ -33,6 +33,8 @@
 
 #include <list>
 #include <thread>
+#include "PointLight.h"
+#include <valarray>
 
 using namespace glm;
 
@@ -2106,10 +2108,10 @@ Model* GenerateTerrain(const std::string& path, int* width)
 
 	*width = textureFile.getWidth();
 
-	GLfloat *vertexArray = (GLfloat*)malloc(sizeof(GLfloat) * 3 * vertexCount);
-	GLfloat *normalArray = (GLfloat*)malloc(sizeof(GLfloat) * 3 * vertexCount);
-	GLfloat *texCoordArray = (GLfloat*)malloc(sizeof(GLfloat) * 2 * vertexCount);
-	GLuint *indexArray = (GLuint*)malloc(sizeof(GLuint) * triangleCount * 3);
+	GLfloat *vertexArray = static_cast<GLfloat*>(malloc(sizeof(GLfloat) * 3 * vertexCount));
+	GLfloat *normalArray = static_cast<GLfloat*>(malloc(sizeof(GLfloat) * 3 * vertexCount));
+	GLfloat *texCoordArray = static_cast<GLfloat*>(malloc(sizeof(GLfloat) * 2 * vertexCount));
+	GLuint *indexArray = static_cast<GLuint*>(malloc(sizeof(GLuint) * triangleCount * 3));
 
 	int bpp = textureFile.hasAlpha() ? 32 : 24;
 
@@ -2245,6 +2247,9 @@ int labb4_world()
 		Model* sphere;
 		sphere = LoadModelPlus("groundsphere.obj");
 
+		Model* bunny;
+		bunny = LoadModelPlus("bunnyplus.obj");
+
 		Model* skybox;
 		skybox = LoadModelPlus("skybox.obj");
 
@@ -2322,6 +2327,23 @@ int labb4_world()
 			return -1;
 		}
 
+		ShaderProgram depthShader("depthvert.shader", "depthfrag.shader", "depthgeom.shader");
+		try
+		{
+			depthShader.use();
+			depthShader.compile();
+
+			depthShader.bindAttribLocation(0, "vertex_position");
+
+			depthShader.link();
+		}
+		catch (const ShaderProgramException& ex)
+		{
+			std::cerr << ex.what() << std::endl;
+			glfwTerminate();
+			return -1;
+		}
+
 
 		glfwSetErrorCallback(GLFWError);
 
@@ -2371,7 +2393,7 @@ int labb4_world()
 		GLfloat timeElapsed = 0.f;
 		GLuint frames = 0;
 
-		glfwSetInputMode(window.getHandle(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		window.setCursorMode(CursorMode::DISABLED);
 
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
@@ -2379,7 +2401,10 @@ int labb4_world()
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
 
-		Camera camera{ glm::vec3(0.f,10.f,4.f) };
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		Camera camera{ glm::vec3(120.f,10.f,100.f) };
 
 		bool firstMouse = true;
 		GLfloat lastX{ 0.f };
@@ -2398,16 +2423,63 @@ int labb4_world()
 		bool drawNormals{ false };
 		bool wireFrame{ false };
 
-		glm::vec2 sphere_pos{ 1.f,1.f };
+		glm::vec2 sphere_pos{ 120.f,130.f };
+		glm::vec2 bunny_pos{ 110.f,130.f };
 
-		float sphere_speed{ 1.f };
+		float sphere_speed{ 10.f };
+
+		// Shadow framebuffer
+
+		GLuint depthMapFBO;
+		glGenFramebuffers(1, &depthMapFBO);
+
+		constexpr GLuint SHADOW_MAP_ORDER = 9;
+
+		constexpr GLuint SHADOW_WIDTH = 2 << SHADOW_MAP_ORDER;
+		constexpr GLuint SHADOW_HEIGHT = 2 << SHADOW_MAP_ORDER;
+
+		GLuint depthCubeMap;
+		glGenTextures(1, &depthCubeMap);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubeMap);
+		for (int i = 0; i < 6; ++i)
+		{
+			glTexImage2D(
+				GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+				0,
+				GL_DEPTH_COMPONENT,
+				SHADOW_WIDTH,
+				SHADOW_HEIGHT,
+				0,
+				GL_DEPTH_COMPONENT,
+				GL_FLOAT,
+				NULL);
+		}
+
+		GLfloat borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
+
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
+
+		glTexParameterfv(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_BORDER_COLOR, borderColor);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthCubeMap, 0);
+		glDrawBuffer(GL_NONE);
+		glReadBuffer(GL_NONE);
+
+
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+			std::cout << "Framebuffer not complete!" << std::endl;
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		while (!window.shouldClose())
 		{
-			// Clear screen and depth buffer
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			if(wireFrame)
+			if (wireFrame)
 			{
 				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 			}
@@ -2536,19 +2608,19 @@ int labb4_world()
 
 					lastX = ev.mouse.posx;
 					lastY = ev.mouse.posy;
-					if(window.hasFocus())
+					if (window.hasFocus())
 						camera.processMouseMovement(xOffset, yOffset);
 				}
 				break;
 
 				case EventType::GAINED_FOCUS:
 				{
-					glfwSetInputMode(window.getHandle(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+					window.setCursorMode(CursorMode::HIDDEN);
 				}
 				break;
 				case EventType::LOST_FOCUS:
 				{
-					glfwSetInputMode(window.getHandle(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+					window.setCursorMode(CursorMode::NORMAL);
 
 				}
 				break;
@@ -2586,40 +2658,138 @@ int labb4_world()
 			listener.setOrientationUp(camera.getUpVector());
 
 			// Sätt till 1.f för att aktivera ljud
-			listener.setGain(0.f);
+			listener.setGain(1.f);
 
 			shaderProgram.use();
 
 			glm::mat4 view = camera.getViewMatrix();
-			glm::mat4 projection = glm::perspective(radians(45.f), (GLfloat)window.getDimensions().x / (GLfloat)window.getDimensions().y, 0.1f, 1000.f);
+			glm::mat4 projection = glm::perspective(radians(45.f), window.getAspectRatio(), 0.1f, 1000.f);
 
 			shaderProgram.uploadUniform("time", time);
 
 			shaderProgram.uploadUniform("view_pos", camera.getPosition());
 
+			glm::vec3 sphere_pos_3D = glm::vec3(sphere_pos.x, getHeight(sphere_pos.x, sphere_pos.y, m3, terrainWidth), sphere_pos.y);
+			glm::vec3 bunny_pos_3D = glm::vec3(bunny_pos.x, getHeight(bunny_pos.x, bunny_pos.y, m3, terrainWidth) + 0.5f, bunny_pos.y);
+
 			// Light uniforms
 
-			glm::vec3 lightPos(100.f, 100.f, 100.f);
 			//glm::vec3 lightPos = camera.getPosition();
-			glm::vec3 lightColor = glm::vec3(1.f, 1.f, 1.f);
+			glm::vec3 lightColor = glm::vec3{ 1.f,1.f,1.f }; //glm::vec3(abs(sin(time)), abs(sin(time + 2.f*glm::pi<float>()/3.f)), abs(sin(time + 4.f*glm::pi<float>() / 3.f)));
 			glm::vec3 diffuseColor = lightColor*0.7f; // Decrease the influence
 			glm::vec3 ambientColor = diffuseColor*0.3f; // Low influence
+			glm::vec3 specularColor(1.f, 1.f, 1.f);
 
-			glUniform3f(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "light.position"), lightPos.x, lightPos.y, lightPos.z);
+			PointLight pointLight{
+				sphere_pos_3D + glm::vec3{0.f,5.f,0.f}, // Position
+				ambientColor,
+				diffuseColor,
+				specularColor,
+				1.f,
+				0.01f,
+				0.003f
+			};
 
-			glUniform1f(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "light.constant"), 1.f);
-			glUniform1f(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "light.linear"), 0.f);
-			glUniform1f(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "light.quadratic"), 0.f);
+			PointLight pointLight2{
+				glm::vec3(sphere_pos.x, getHeight(sphere_pos.x, sphere_pos.y, m3, terrainWidth), sphere_pos.y), // Position
+				glm::vec3{ 1.f,1.f,1.f }, // Ambient
+				glm::vec3{ 1.f, 1.f, 1.f}, // Diffuse
+				glm::vec3{ 1.f, 1.f, 1.f}, // Specular
+				1.f, // Constant
+				0.01f, // Linear
+				0.003f // Quadratic
+			};
 
-			glUniform3f(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "light.ambient"), ambientColor.x, ambientColor.y, ambientColor.z);
-			glUniform3f(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "light.diffuse"), diffuseColor.x, diffuseColor.y, diffuseColor.z);
-			glUniform3f(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "light.specular"), 1.0f, 1.0f, 1.0f);
+			shaderProgram.uploadUniform("nLights", 1);
+
+			auto uploadLight = [](int i, const PointLight& pointLight, ShaderProgram& shaderProgram)
+			{
+				shaderProgram.uploadUniform(std::string("light[") + std::to_string(i) + "].position", pointLight.getPosition());
+
+				shaderProgram.uploadUniform(std::string("light[") + std::to_string(i) + "].constant", pointLight.getConstant());
+				shaderProgram.uploadUniform(std::string("light[") + std::to_string(i) + "].linear", pointLight.getLinear());
+				shaderProgram.uploadUniform(std::string("light[") + std::to_string(i) + "].quadratic", pointLight.getQuadratic());
+
+				shaderProgram.uploadUniform(std::string("light[") + std::to_string(i) + "].ambient", pointLight.getAmbient());
+				shaderProgram.uploadUniform(std::string("light[") + std::to_string(i) + "].diffuse", pointLight.getDiffuse());
+				shaderProgram.uploadUniform(std::string("light[") + std::to_string(i) + "].specular", pointLight.getSpecular());
+			};
+
+			uploadLight(0, pointLight, shaderProgram);
+			//uploadLight(1, pointLight2, shaderProgram);
 
 			// Material Uniforms
 			glUniform3f(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "material.ambient"), 1.f, 1.f, 1.f);
 			glUniform3f(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "material.diffuse"), 1.f, 1.f, 1.f);
 			glUniform3f(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "material.specular"), 1.f, 1.f, 1.f);
 			glUniform1f(glGetUniformLocation(shaderProgram.getShaderProgramHandle(), "material.shininess"), 0.6f*128.f);
+
+			constexpr GLfloat aspect = static_cast<GLfloat>(SHADOW_WIDTH) / static_cast<GLfloat>(SHADOW_HEIGHT);
+			constexpr GLfloat near = 1.f;
+			constexpr GLfloat far = 250.f;
+
+			glm::mat4 shadowProj = glm::perspective(glm::radians(90.f), aspect, near, far);
+
+			std::vector<glm::mat4> shadowTransforms;
+			shadowTransforms.push_back(shadowProj *
+				glm::lookAt(pointLight.getPosition(), pointLight.getPosition() + glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
+			shadowTransforms.push_back(shadowProj *
+				glm::lookAt(pointLight.getPosition(), pointLight.getPosition() + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
+			shadowTransforms.push_back(shadowProj *
+				glm::lookAt(pointLight.getPosition(), pointLight.getPosition() + glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, 1.0)));
+			shadowTransforms.push_back(shadowProj *
+				glm::lookAt(pointLight.getPosition(), pointLight.getPosition() + glm::vec3(0.0, -1.0, 0.0), glm::vec3(0.0, 0.0, -1.0)));
+			shadowTransforms.push_back(shadowProj *
+				glm::lookAt(pointLight.getPosition(), pointLight.getPosition() + glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, -1.0, 0.0)));
+			shadowTransforms.push_back(shadowProj *
+				glm::lookAt(pointLight.getPosition(), pointLight.getPosition() + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, -1.0, 0.0)));
+
+			//==========================================================================
+			// Draw to shadow buffer
+			//==========================================================================
+
+			glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+			glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+			glClear(GL_DEPTH_BUFFER_BIT);
+			glCullFace(GL_FRONT);
+
+			depthShader.use();
+
+			glm::mat4 model = glm::scale(mat4{ 1.f }, glm::vec3(1.f, 1.f, 1.f));
+			depthShader.uploadUniform("model", model);
+			depthShader.uploadUniform("far_plane", far);
+			depthShader.uploadUniform("lightPos", pointLight.getPosition());
+			for (int i = 0; i < 6; ++i)
+			{
+				depthShader.uploadUniform(std::string("shadowMatrices[") + std::to_string(i) + std::string("]"), shadowTransforms[i]);
+			}
+
+			DrawModel(m3, depthShader.getShaderProgramHandle(), "vertex_position", "vertex_normal", "vertex_texture_coordinates");
+
+			model = glm::translate(mat4{ 1.f }, sphere_pos_3D);
+
+			depthShader.uploadUniform("model", model);
+
+			DrawModel(sphere, depthShader.getShaderProgramHandle(), "vertex_position", "vertex_normal", "vertex_texture_coordinates");
+
+			model = glm::translate(mat4{ 1.f }, bunny_pos_3D);
+
+			depthShader.uploadUniform("model", model);
+
+			DrawModel(bunny, depthShader.getShaderProgramHandle(), "vertex_position", "vertex_normal", "vertex_texture_coordinates");
+
+			glCullFace(GL_BACK);
+
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+			//==========================================================================
+			// Draw to screen
+			//==========================================================================
+
+			glViewport(0, 0, window.getWidth(), window.getHeight());
+
+			// Clear screen and depth buffer
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			skyboxShaderProgram.use();
 			glm::mat4 skyboxModel = glm::translate(glm::mat4{ 1.f }, camera.getPosition());
@@ -2638,23 +2808,42 @@ int labb4_world()
 			textures.at("skybox")->bind(0);
 
 			glDisable(GL_DEPTH_TEST);
-
 			glCullFace(GL_FRONT);
-
 			DrawModel(skybox, skyboxShaderProgram.getShaderProgramHandle(), "vertex_position", "vertex_normal", "vertex_texture_coordinates");
-
 			glCullFace(GL_BACK);
-
 			glEnable(GL_DEPTH_TEST);
 
 			shaderProgram.use();
 
+			textures.at("Concrete")->bind(0);
+			textures.at("ground")->bind(1);
+
+			glActiveTexture(GL_TEXTURE3);
+			glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubeMap);
+
 			shaderProgram.uploadUniform("texUnit", 0);
 			shaderProgram.uploadUniform("texUnit2", 1);
-			textures.at("Concrete")->bind(0);
+			shaderProgram.uploadUniform("depthMap", 3);
+			shaderProgram.uploadUniform("far_plane", far);
 
-			glm::mat4 model = glm::translate(mat4{ 1.f }, glm::vec3(sphere_pos.x, getHeight(sphere_pos.x, sphere_pos.y, m3, terrainWidth), sphere_pos.y));
-			mat4 trans = projection*view*model;
+			model = glm::scale(mat4{ 1.f }, glm::vec3(1.f, 1.f, 1.f));
+			glm::mat4 trans = projection*view*model;
+			shaderProgram.uploadUniform("transform", trans);
+			shaderProgram.uploadUniform("model", model);
+			shaderProgram.uploadUniform("alpha", 1.f);
+
+			DrawModel(m3, shaderProgram.getShaderProgramHandle(), "vertex_position", "vertex_normal", "vertex_texture_coordinates");
+
+			if (drawNormals)
+			{
+				normalShaderProgram.use();
+				normalShaderProgram.uploadUniform("transform", trans);
+
+				glDrawArrays(GL_POINTS, 0, m3->numVertices);
+			}
+
+			model = glm::translate(mat4{ 1.f }, sphere_pos_3D);
+			trans = projection*view*model;
 
 			shaderProgram.uploadUniform("transform", trans);
 			shaderProgram.uploadUniform("model", model);
@@ -2669,22 +2858,20 @@ int labb4_world()
 				glDrawArrays(GL_POINTS, 0, sphere->numVertices);
 			}
 
-			textures.at("Concrete")->bind(0);
-			textures.at("ground")->bind(1);
-
-			model = glm::scale(mat4{ 1.f }, glm::vec3(1.f, 1.f, 1.f));
+			model = glm::translate(mat4{ 1.f }, bunny_pos_3D);
 			trans = projection*view*model;
+
 			shaderProgram.uploadUniform("transform", trans);
 			shaderProgram.uploadUniform("model", model);
 
-			DrawModel(m3, shaderProgram.getShaderProgramHandle(), "vertex_position", "vertex_normal", "vertex_texture_coordinates");
+			DrawModel(bunny, shaderProgram.getShaderProgramHandle(), "vertex_position", "vertex_normal", "vertex_texture_coordinates");
 
 			if (drawNormals)
 			{
 				normalShaderProgram.use();
 				normalShaderProgram.uploadUniform("transform", trans);
 
-				glDrawArrays(GL_POINTS, 0, m3->numVertices);
+				glDrawArrays(GL_POINTS, 0, sphere->numVertices);
 			}
 
 			window.display();

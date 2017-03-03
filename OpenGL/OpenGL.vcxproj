@@ -137,6 +137,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="ConfigFile.inl" />
+    <None Include="depthfrag.shader" />
+    <None Include="depthgeom.shader" />
+    <None Include="depthvert.shader" />
     <None Include="labb1-1.frag" />
     <None Include="labb1-1.vert" />
     <None Include="normalfrag.shader" />

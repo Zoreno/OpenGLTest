@@ -152,6 +152,15 @@
     <None Include="normalfrag.shader">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="depthfrag.shader">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="depthgeom.shader">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="depthvert.shader">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Window.h">

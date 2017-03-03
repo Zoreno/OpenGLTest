@@ -552,6 +552,12 @@ public:
 	GLuint getHeight() const noexcept;
 
 	/**
+	 * @brief Gets the ratio Width/Height.
+	 * @return Aspect ratio.
+	 */
+	GLfloat getAspectRatio() const noexcept;
+
+	/**
 	 * @brief Get Window Handle
 	 * @return The GLFW window handle
 	 */
